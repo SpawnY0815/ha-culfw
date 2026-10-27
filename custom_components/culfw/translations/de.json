@@ -1,0 +1,451 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "CUL verbinden",
+        "description": "Home Assistant liest die Version und den Zentralencode aus dem CUL, um die Verbindung zu prüfen. Am Stick wird nichts geändert.",
+        "data": {
+          "device": "Serieller Port"
+        },
+        "data_description": {
+          "device": "Der Port des CUL. Ein Pfad wie `/dev/ttyACM0` wird als stabiler Pfad unter `/dev/serial/by-id/` gespeichert, wenn der Host einen hat. Nutzt ein anderes Programm wie FHEM den CUL, beende es zuerst."
+        }
+      },
+      "usb_confirm": {
+        "title": "CUL gefunden",
+        "description": "Möchtest du den CUL unter `{device}` einrichten? Home Assistant liest die Version und den Zentralencode aus dem CUL, um die Verbindung zu prüfen. Am Stick wird nichts geändert."
+      },
+      "house_code": {
+        "title": "Zentralencode",
+        "description": "Der **Zentralencode** ist der Code des CUL, der Zentrale deines FHT-Systems. FHEM nennt ihn FHTID, und die Dokumentation dieser Integration nennt ihn auch Hauscode. Im CUL steht gerade `{current}`. Thermostate, die mit FHEM laufen, funktionieren mit demselben Code weiter.\n\n**Neueinrichtung:** Wähle einen beliebigen Code und gib jeden FHT80b zur Anmeldung frei. **PROG** gedrückt halten, bis `Sond` erscheint, `CEnt` wählen, **PROG** drücken, `nA` wählen und mit **PROG** bestätigen. Das Thermostat zeigt `On`, sobald es angemeldet ist.\n\nDer **Sicherheitscode** (`CodE`) eines Thermostats ist ein anderer Code, den du hier nicht änderst. Zum Ablesen hältst du **PROG** gedrückt, bis `Sond` erscheint, wählst mit dem Rad `CodE` und bestätigst mit **PROG**. Das Display zeigt `Code 1` mit drei Ziffern, zum Beispiel `063`. Bestätige erneut, dann zeigt es `Code 2`, zum Beispiel `072`.\n\nUm den Zentralencode später zu sehen oder zu ändern, wähle **Neu konfigurieren** unter **Einstellungen** > **Geräte & Dienste** > **culfw**.",
+        "data": {
+          "first_pair": "Zentralencode, erste Zahl",
+          "second_pair": "Zentralencode, zweite Zahl"
+        },
+        "data_description": {
+          "first_pair": "1 bis 99, zum Beispiel 16",
+          "second_pair": "1 bis 99, zum Beispiel 52"
+        }
+      },
+      "reconfigure": {
+        "title": "CUL neu konfigurieren",
+        "description": "Ändere den seriellen Port, zum Beispiel nachdem du den Stick an einen anderen USB-Port gesteckt hast, oder den Zentralencode des CUL, der gerade `{current}` ist. Ein anderer Zentralencode wird nach deiner Bestätigung in den CUL geschrieben. Danach musst du jeden FHT80b erneut zur Anmeldung freigeben: **PROG** gedrückt halten, bis `Sond` erscheint, `CEnt` wählen, **PROG** drücken und `nA` wählen. Danach lädt Home Assistant die Integration neu.",
+        "data": {
+          "device": "Serieller Port",
+          "first_pair": "Zentralencode, erste Zahl",
+          "second_pair": "Zentralencode, zweite Zahl"
+        },
+        "data_description": {
+          "device": "Der Port des CUL. Ein Pfad wie `/dev/ttyACM0` wird als stabiler Pfad unter `/dev/serial/by-id/` gespeichert, wenn der Host einen hat.",
+          "first_pair": "1 bis 99, zum Beispiel 16",
+          "second_pair": "1 bis 99, zum Beispiel 52"
+        }
+      },
+      "confirm_house_code": {
+        "title": "Zentralencode überschreiben?",
+        "description": "Im CUL steht der Zentralencode `{current}`. Wird er mit `{new}` überschrieben, wird das EEPROM des CUL neu beschrieben und alle FHT-Puffer des CUL werden geleert. FHT80b-Thermostate, die bei `{current}` angemeldet sind, nehmen danach keine Befehle mehr an, bis du sie zur Anmeldung freigibst (`CEnt`, `nA`) und sie sich bei `{new}` anmelden. Der Sicherheitscode (`CodE`) eines Thermostats ändert sich dabei nicht.",
+        "submit": "Überschreiben"
+      },
+      "listen_menu": {
+        "title": "Geräte finden",
+        "description": "Geräte melden sich nur, wenn sie senden, deshalb hört die Integration etwa {minutes} Minuten lang den Funk ab. Thermostate senden etwa alle 2 Minuten. Fensterkontakte senden bei einer Änderung und sonst etwa alle 4 Minuten, also öffne oder schließe einen Kontakt, damit er schneller erscheint.\n\nJedes Thermostat braucht funktionierende Batterien und `CEnt` auf `On` (der vorige Schritt beschreibt die Freigabe mit `nA`), sonst sendet es nicht und erscheint nicht. Ein fehlendes Gerät kannst du später hinzufügen: Die Integration fügt neue Geräte automatisch hinzu (siehe die Option **Neue Geräte automatisch hinzufügen**) oder listet sie als Kandidaten auf. Du kannst das Zuhören auch jetzt überspringen, zum Beispiel solange die Batterien draußen sind.",
+        "menu_options": {
+          "listen": "Nach Geräten suchen",
+          "summary": "Überspringen und ohne Geräte einrichten"
+        }
+      },
+      "listen": {
+        "title": "Suche nach Geräten"
+      },
+      "summary": {
+        "title": "Gefundene Geräte",
+        "description": "**Gehörte Thermostate:** {thermostats}\n\n**Gehörte Fensterkontakte:** {contacts}\n\nDie Zahl in Klammern ist die Signalstärke, die hilft, deine Geräte von denen eines Nachbarn zu unterscheiden. Ein Gerät eines Nachbarn kannst du später in den Optionen ignorieren. Ein fehlendes Gerät wird automatisch hinzugefügt, sobald es sendet, du kannst also jetzt einrichten und darauf warten.\n\nDie hier aufgelisteten Geräte werden in Home Assistant zu Geräten, sobald ihr nächstes Telegramm eintrifft, deshalb listet sie der folgende Dialog zur Benennung nicht auf. Benenne sie später auf ihrer Geräteseite unter **Einstellungen** > **Geräte & Dienste** > **Geräte**.\n\nWurden Fensterkontakte gehört, bekommt jeder unten ein Feld, in dem du wählst, ob er ein Fenster oder eine Tür überwacht, weil ein Kontakt das nicht sagen kann. Ein Kontakt gehört außerdem zu einem Thermostat, aber keiner von beiden sagt, zu welchem. Wenn die Geräte eine Weile gesendet haben, kannst du jeden Kontakt seinem Thermostat zuordnen und die Wahl von Fenster oder Tür ändern, unter **Einstellungen** > **Geräte & Dienste** > **culfw** > **Konfigurieren**.\n\nDie Integration fügt deinen Dashboards auch die Wochenprogramm-Karte hinzu, mit der du das Wochenprogramm eines Thermostats ansehen und ändern kannst. Du kannst das später unter **Einstellungen** > **Geräte & Dienste** > **culfw** > **Konfigurieren** ausschalten.",
+        "data": {
+          "read_week_programs": "Wochenprogramme automatisch abrufen"
+        },
+        "data_description": {
+          "read_week_programs": "Das Auslesen dauert bis zu etwa 35 Minuten pro Thermostat, eines nach dem anderen: Die ersten zwei Tage kommen nach etwa 11 Minuten, alle sieben nach etwa 35 Minuten, also brauchen 4 Thermostate etwa 2,5 Stunden. Es läuft im Hintergrund. Du kannst das später unter **Einstellungen** > **Geräte & Dienste** > **culfw** > **Konfigurieren** ändern."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Die Verbindung zum seriellen Port ist fehlgeschlagen. Prüfe, ob der CUL eingesteckt ist und ob Home Assistant den Port verwenden darf.",
+      "port_missing": "Der serielle Port existiert nicht. Prüfe, ob der CUL eingesteckt ist, und wähle seinen Port erneut aus.",
+      "port_in_use": "Ein anderes Programm verwendet den seriellen Port. Beende es, zum Beispiel FHEM, und versuche es erneut.",
+      "permission_denied": "Home Assistant darf den seriellen Port nicht öffnen. Gib dem Benutzer, unter dem Home Assistant läuft, Zugriff auf den Port, zum Beispiel indem du ihn zur Gruppe `dialout` hinzufügst.",
+      "no_answer": "Das Gerät antwortet nicht. Prüfe, ob es ein CUL mit culfw ist.",
+      "not_culfw": "Das Gerät antwortet nicht wie ein CUL mit culfw. Prüfe, ob du den richtigen seriellen Port gewählt hast.",
+      "invalid_house_code": "Der CUL kann diesen Zentralencode nicht verwenden. Gib jede der beiden Zahlen als ganze Zahl von 1 bis 99 ein. Der CUL kann eine 0 nicht verwenden.",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "progress": {
+      "listen": "Geräte erscheinen, wenn sie senden. Thermostate senden etwa alle 2 Minuten, Fensterkontakte etwa alle 4 Minuten. Ein Thermostat mit leeren Batterien oder mit `CEnt` nicht auf `On` erscheint nicht. Du kannst es später hinzufügen: Die Integration fügt neue Geräte automatisch hinzu (Option) oder listet sie als Kandidaten auf.\n\nDas dauert etwa {minutes} Minuten. Wenn du diesen Dialog schließt, wird die Einrichtung abgebrochen.\n\n**Gehörte Thermostate:** {thermostats}\n\n**Gehörte Fensterkontakte:** {contacts}"
+    },
+    "abort": {
+      "already_configured": "Der CUL ist bereits eingerichtet, und es wird nur ein CUL unterstützt. Um den seriellen Port oder den Zentralencode zu ändern, wähle im Menü der Integration **Neu konfigurieren**.",
+      "cannot_listen": "Home Assistant konnte den CUL unter `{device}` nicht abhören. Prüfe, ob der CUL noch eingesteckt ist und ob ihn kein anderes Programm verwendet, und starte die Einrichtung dann erneut."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "FHT-CUL-Optionen",
+        "data": {
+          "fht80b_stale_hours": "FHT80b stumm nach",
+          "fht80tf_stale_hours": "FHT80 TF stumm nach",
+          "auto_add_devices": "Neue Geräte automatisch hinzufügen",
+          "candidates_to_add": "Neue Geräte hinzufügen",
+          "candidates_to_ignore": "Neue Geräte ignorieren",
+          "ignored_devices": "Ignorierte Geräte",
+          "read_week_programs": "Wochenprogramme automatisch abrufen",
+          "add_card": "Wochenprogramm-Karte automatisch hinzufügen"
+        },
+        "data_description": {
+          "fht80b_stale_hours": "Stunden ohne jedes Telegramm, nach denen ein FHT80b als verschwunden gilt: Seine Werte sind dann nicht verfügbar, und es gibt eine Reparaturmeldung. Er meldet sich etwa alle 2 Minuten.",
+          "fht80tf_stale_hours": "Stunden ohne jedes Telegramm, nach denen ein FHT80 TF als verschwunden gilt: Seine Werte sind dann nicht verfügbar, und es gibt eine Reparaturmeldung. Er meldet sich etwa alle 4 Minuten.",
+          "auto_add_devices": "Fügt jedes FHT-Gerät hinzu, das der CUL zum ersten Mal hört. Schalte es aus, wenn Geräte eines Nachbarn in Reichweite sind: Neue Geräte warten dann hier als Kandidaten, bis du sie hinzufügst oder ignorierst.",
+          "candidates_to_add": "Geräte, die der CUL gehört hat, während neue Geräte nicht automatisch hinzugefügt werden, mit ihrer Signalstärke, an der man eigene Geräte von denen eines Nachbarn unterscheidet. Die gewählten Geräte werden beim Speichern hinzugefügt.",
+          "candidates_to_ignore": "Die gewählten Geräte kommen beim Speichern zu den ignorierten Geräten, und ihre Telegramme werden verworfen.",
+          "ignored_devices": "Telegramme dieser Geräte werden verworfen und die Geräte entfernt, zum Beispiel ein FHT80b aus der Nachbarschaft. Löschst du ein Gerät, das noch sendet, landet es hier.",
+          "read_week_programs": "Ruft das Wochenprogramm jedes Thermostats einmal nach dem ersten Kontakt ab, erneut nach einem Reset des CUL und danach alle 24 Stunden, damit der Kalender „Heizprogramm“ zeigt, was das Thermostat hält, auch nachdem du es am Thermostat geändert hast. Ein Thermostat antwortet nur in seinen Zeitfenstern, deshalb dauern die sieben Tage etwa 35 Minuten, und es wird immer nur ein Thermostat abgefragt. Schalte es aus, wenn das Wochenprogramm nur über die Taste „Wochenprogramm abrufen“ kommen soll.",
+          "add_card": "Fügt die Wochenprogramm-Karte den Ressourcen deiner Dashboards hinzu, damit **FHT Wochenprogramm** in der Liste der Karten erscheint, wenn du ein Dashboard bearbeitest. Schalte es aus, um die Datei `/culfw/frontend/fht-schedule-card.js` selbst als JavaScript-Modul unter **Einstellungen** > **Dashboards** > Menü **Ressourcen** einzutragen. Ausschalten entfernt keine Ressource, die schon da ist."
+        },
+        "sections": {
+          "recovery": {
+            "name": "Wiederherstellung",
+            "description": "Letzte Mittel des Watchdogs, wenn der CUL stumm bleibt. Beide lassen den Stick kurz vom USB-Bus verschwinden. Das ist nur sicher, wenn Home Assistant das ganze USB-Gerät bekommt und den Stick unter seinem Pfad in `/dev/serial/by-id/` wiederfindet. Das ist der Fall, wenn eine virtuelle Maschine den Stick per Hersteller- und Produkt-ID durchgereicht bekommt. Lass beide aus, wenn der Stick an einen festen Port wie `/dev/ttyACM0` gebunden ist.",
+            "data": {
+              "allow_reboot": "Neustart des CUL erlauben",
+              "allow_usb_reset": "Zurücksetzen der USB-Verbindung erlauben"
+            },
+            "data_description": {
+              "allow_reboot": "Erlaubt dem Watchdog, den CUL neu zu starten, der sich danach am USB neu anmeldet. Schalte es nur ein, wenn der Stick per Hersteller- und Produkt-ID durchgereicht wird und einen Link unter `/dev/serial/by-id/` hat.",
+              "allow_usb_reset": "Erlaubt dem Watchdog, die USB-Verbindung des Sticks zurückzusetzen, wobei die FHT-Puffer des CUL erhalten bleiben. Schalte es nur ein, wenn der Stick per Hersteller- und Produkt-ID durchgereicht wird und einen Link unter `/dev/serial/by-id/` hat. Die Zurücksetzung wird nur genutzt, wenn der serielle Port der Integration dieser Link ist."
+            }
+          }
+        }
+      },
+      "contact_types": {
+        "title": "FHT80-TF-Kontakte",
+        "description": "Wähle für jeden FHT80-TF-Kontakt, ob er ein Fenster oder eine Tür überwacht. Der Kontakt kann das nicht melden, und die Auswahl legt die Geräteklasse seines Zustands „offen“ fest. Hast du die Geräteklasse dieser Entität in ihren Einstellungen geändert, bleibt deine Einstellung dort bestehen."
+      },
+      "contact_thermostats": {
+        "title": "Fensterkontakte jedes Thermostats",
+        "description": "Wähle für jeden FHT80-TF-Kontakt das Thermostat, mit dem er gekoppelt ist. Ein Thermostat speichert bis zu vier Kontakte und zeigt auf seinem Display nur den Zustand jedes Platzes, nie den Code eines Kontakts. Deshalb kann das Thermostat es nicht sagen, und der Funk kann es nicht sicher sagen. Antwortet ein Thermostat, wenn sich ein Kontakt öffnet oder schließt, meist innerhalb von Sekunden und manchmal erst nach einer Minute oder mehr, wird es für diesen Kontakt vorgeschlagen, mit geringer, mittlerer oder hoher Sicherheit. Das Fenster einmal zu öffnen und zu schließen genügt, wenn das Thermostat schnell antwortet, sonst braucht es etwa zwei Runden. Es ändert sich nichts, bis du speicherst. Die Zuordnung dient deiner Übersicht: Sie trägt das Thermostat in die Attribute des Kontakts ein und den Kontakt in die Attribute des Thermostats. An den Thermostaten ändert sie nichts. Um einen Kontakt mit einem anderen Thermostat zu koppeln, nutze das Menü FEn am Thermostat."
+      }
+    },
+    "error": {
+      "candidate_conflict": "Ein Gerät kann nicht gleichzeitig hinzugefügt und ignoriert werden. Wähle es nur in einer der beiden Listen."
+    }
+  },
+  "issues": {
+    "device_silent": {
+      "title": "{name} meldet sich nicht",
+      "short_title": "Gerät stumm",
+      "description": "{name} hat seit mehr als {hours} h kein Telegramm gesendet (zuletzt gehört: {last_seen}). Seine Werte sind nicht verfügbar, bis es sich wieder meldet.\n\nDie Thermostate und Fensterkontakte melden sich von selbst alle paar Minuten. Ein Gerät, das stumm bleibt, hat schwache Batterien, ist außer Funkreichweite des CUL oder wurde außer Betrieb genommen.\n\nSo behebst du das:\n\n1. Prüfe die Batterien von {name} und tausche sie, wenn sie schwach sind.\n2. Ist das Gerät weit vom CUL entfernt, rücke den CUL näher heran oder weg von Metall und anderen Funkquellen.\n3. Gehört {name} einem Nachbarn oder ist es endgültig weg, trage es in den Optionen der Integration unter **Ignorierte Geräte** ein.\n\nSobald der CUL {name} wieder hört, verschwindet diese Meldung und die Entitäten sind wieder verfügbar."
+    },
+    "battery_low": {
+      "title": "Die Batterie von {name} ist schwach",
+      "short_title": "Batterie schwach",
+      "description": "{name} meldet, dass seine Batterie schwach ist.\n\nEin Gerät mit schwacher Batterie kann aufhören zu senden, bevor die Batterie ganz leer ist. Seine Werte sind dann nicht verfügbar.\n\nSo behebst du das:\n\n1. Tausche die Batterien von {name}.\n2. Warte ein paar Minuten, bis sich das Gerät wieder meldet.\n\nDie Meldung verschwindet mit dem ersten Telegramm von {name}, das keine schwache Batterie mehr meldet."
+    },
+    "fht_buffer_low": {
+      "title": "Der FHT-Sendepuffer des CUL ist fast voll",
+      "short_title": "Sendepuffer fast voll",
+      "description": "Im FHT-Sendepuffer des CUL sind nur noch {free} Byte frei.\n\nNachrichten für ein Thermostat warten in diesem Puffer, bis das Thermostat sie abholt. Nachrichten für ein Thermostat, das stumm bleibt, verlassen ihn nie. Ist der Puffer voll, verwirft der CUL neue Nachrichten, und Befehle und der Zeitabgleich erreichen kein Thermostat mehr.\n\nSo behebst du das:\n\n1. Suche nach Reparaturmeldungen über stumme Geräte und beseitige deren Ursache, meist schwache Batterien oder eine fehlende Funkverbindung.\n2. Trage Geräte, die endgültig weg sind oder einem Nachbarn gehören, in den Optionen der Integration unter **Ignorierte Geräte** ein.\n\nNachrichten, die schon warten, verlassen den Puffer, wenn ihr Thermostat sie abholt oder wenn die Integration den Puffer leert, was sie tut, sobald der CUL meldet, dass der Puffer voll ist. Diese Meldung verschwindet bei der ersten Abfrage des CUL danach, innerhalb weniger Minuten."
+    },
+    "cul_unreachable": {
+      "title": "Der CUL ist nicht erreichbar",
+      "short_title": "CUL nicht erreichbar",
+      "description": "Home Assistant kann den CUL an `{port}` seit {minutes} Minuten nicht erreichen. Es kommen keine FHT-Telegramme an und es gehen keine Befehle hinaus.\n\nDer CUL ist der Funkstick, der Home Assistant mit den Thermostaten und Fensterkontakten verbindet. Bis er wieder da ist, sind alle FHT-Geräte nicht verfügbar, und die Meldungen über stumme Geräte sind ausgeblendet, weil der Ausfall sie erklärt.\n\nSo behebst du das:\n\n1. Prüfe, ob der Stick steckt. Läuft Home Assistant in einer virtuellen Maschine, prüfe, ob die Maschine den Stick bekommt.\n2. Prüfe, dass kein anderes Programm, etwa FHEM, `{port}` belegt.\n3. Ziehe den Stick ab und stecke ihn wieder ein.\n\nDie Integration verbindet sich von selbst immer wieder neu. Sobald der CUL wieder antwortet, verschwindet diese Meldung und die FHT-Geräte sind wieder verfügbar."
+    },
+    "watchdog_exhausted": {
+      "title": "Der CUL bleibt stumm",
+      "short_title": "CUL stumm",
+      "description": "Der CUL an `{port}` antwortet auf Befehle, aber es ist kein Funktelegramm angekommen, obwohl die Integration alle Wiederherstellungsschritte versucht hat. Letzte Meldung des Watchdogs: {detail}.\n\nOhne Telegramme sieht die Integration kein FHT-Gerät, und sie kann nicht sagen, ob ihre Befehle ankommen.\n\nSo behebst du das:\n\n1. Prüfe, ob die Thermostate funktionierende Batterien haben und in Reichweite sind.\n2. Rücke den Stick weg von anderer Elektronik, Metall und USB-3-Geräten, zum Beispiel mit einem USB-Verlängerungskabel.\n3. Ziehe den Stick ab und stecke ihn wieder ein.\n4. Lade die Integration unter **Einstellungen** > **Geräte & Dienste** neu.\n\nDie Integration beginnt ihre Wiederherstellungsschritte nach einer Weile von vorn. Diese Meldung verschwindet, sobald ein Telegramm ankommt oder sich die Verbindung zum CUL ändert."
+    },
+    "time_sync_missing": {
+      "title": "{name} bekommt keine Uhrzeit",
+      "short_title": "Zeitabgleich fehlt",
+      "description": "{name} hat die letzten {missed} Zeitabgleiche nicht bestätigt.\n\nDie Integration sendet jede Nacht Datum und Uhrzeit an jedes Thermostat. Ohne sie geht die Uhr eines Thermostats falsch, und sein Tages- und Nachtprogramm läuft zur falschen Zeit. Eine fehlende Bestätigung heißt, dass die Nachrichten das Thermostat vermutlich nicht erreichen.\n\nSo behebst du das:\n\n1. Prüfe, ob {name} in Reichweite des CUL ist und seine Batterien in Ordnung sind.\n2. Prüfe, ob {name} beim Zentralencode angemeldet ist, den der CUL verwendet (`CEnt` zeigt am Thermostat `On`).\n3. Prüfe, ob der FHT-Sendepuffer des CUL nicht voll ist. Eine Reparaturmeldung sagt dir, wenn er es ist.\n4. Drücke **Uhrzeit senden** am CUL-Gerät.\n\nDie Meldung verschwindet, sobald {name} einen Zeitabgleich bestätigt, spätestens nach dem nächtlichen Abgleich um 04:05."
+    },
+    "device_unresponsive": {
+      "title": "{name} holt keine Befehle ab",
+      "short_title": "Holt keine Befehle ab",
+      "description": "{name} hat die letzten Nachrichten der Integration nicht bestätigt.\n\nEin Thermostat bestätigt jeden Befehl, den es empfängt. Ohne diese Bestätigung kann die Integration nicht wissen, ob ihre Nachrichten ankommen, und sendet deshalb von sich aus nichts mehr an {name} (nächtlicher Zeitabgleich und Auslesen der Einstellungen), bis es wieder einen Befehl bestätigt. Deine eigenen Befehle gehen weiter hinaus.\n\nSo behebst du das:\n\n1. Prüfe, ob {name} funktionierende Batterien hat und in Reichweite des CUL ist.\n2. Prüfe, ob {name} beim Zentralencode angemeldet ist, den der CUL verwendet (`CEnt` zeigt am Thermostat `On`), und nicht bei einer anderen Zentrale.\n3. Stelle von Home Assistant aus eine Temperatur an {name} ein, um es erneut zu versuchen.\n\nDie Meldung verschwindet, sobald {name} einen Befehl bestätigt."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "valve": {
+        "name": "Ventilöffnung"
+      },
+      "last_seen": {
+        "name": "Zuletzt gehört"
+      },
+      "fht_buffer_free": {
+        "name": "FHT-Puffer frei"
+      },
+      "duty_cycle_credit": {
+        "name": "Sendebudget"
+      },
+      "eob_count": {
+        "name": "Pufferüberläufe"
+      },
+      "lovf_count": {
+        "name": "Sendebudget-Überläufe"
+      },
+      "time_ack": {
+        "name": "Uhrzeit bestätigt"
+      },
+      "actuator_state": {
+        "name": "Stellantriebsstatus",
+        "state": {
+          "regulating": "Regelt",
+          "sync_now": "Synchronisiert",
+          "on": "Ganz offen",
+          "off": "Geschlossen",
+          "offset": "Stellt Offset ein",
+          "lime_protection": "Kalkschutz",
+          "sync_time": "Wartet auf Zeitabgleich",
+          "test": "Testet",
+          "pair": "Wird angelernt"
+        }
+      },
+      "holiday_end": {
+        "name": "Urlaub endet"
+      },
+      "week_program_status": {
+        "name": "Wochenprogramm-Status",
+        "state": {
+          "unknown": "Unbekannt",
+          "partial": "Teilweise gelesen",
+          "complete": "Vollständig",
+          "writing": "Wird geschrieben"
+        }
+      }
+    },
+    "binary_sensor": {
+      "low_temperature": {
+        "name": "Untertemperaturalarm"
+      },
+      "window_sensor_fault": {
+        "name": "Fenstersensor gestört"
+      }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Uhrzeit senden"
+      },
+      "refresh_settings": {
+        "name": "Einstellungen abrufen"
+      },
+      "refresh_schedule": {
+        "name": "Wochenprogramm abrufen"
+      }
+    },
+    "calendar": {
+      "heating_program": {
+        "name": "Heizprogramm"
+      }
+    },
+    "number": {
+      "day_temperature": {
+        "name": "Tagestemperatur"
+      },
+      "night_temperature": {
+        "name": "Nachttemperatur"
+      },
+      "windowopen_temperature": {
+        "name": "Fenster-offen-Temperatur"
+      },
+      "lowtemp_offset": {
+        "name": "Untertemperaturalarm-Offset"
+      }
+    }
+  },
+  "exceptions": {
+    "cul_missing": {
+      "message": "Der serielle Port {port} existiert nicht. Stecke den CUL ein oder konfiguriere die Integration mit dem richtigen Port neu. Home Assistant versucht es automatisch erneut."
+    },
+    "cul_busy": {
+      "message": "Ein anderes Programm verwendet den seriellen Port {port}. Beende dieses Programm, zum Beispiel FHEM. Home Assistant versucht es automatisch erneut."
+    },
+    "cul_permission": {
+      "message": "Home Assistant darf den seriellen Port {port} nicht öffnen. Gib dem Benutzer, unter dem Home Assistant läuft, Zugriff auf den Port. Home Assistant versucht es automatisch erneut."
+    },
+    "cul_no_answer": {
+      "message": "Das Gerät an {port} antwortet nicht. Prüfe, ob es ein CUL mit culfw ist und ob kein anderes Programm es verwendet. Home Assistant versucht es automatisch erneut."
+    },
+    "cul_not_culfw": {
+      "message": "Das Gerät an {port} antwortet nicht wie ein CUL mit culfw. Prüfe, ob der richtige Port ausgewählt ist. Details: {error}"
+    },
+    "cul_not_ready": {
+      "message": "Der CUL an {port} ist nicht bereit. Home Assistant versucht es automatisch erneut. Details: {error}"
+    },
+    "cul_status_failed": {
+      "message": "Der Status des CUL kann nicht gelesen werden: {error}"
+    },
+    "time_sync_failed": {
+      "message": "Kein FHT80b hat die Uhrzeit bekommen. Versuchte Thermostate: {count}. Die Gründe stehen im Protokoll von Home Assistant."
+    },
+    "no_fht80b": {
+      "message": "Es ist noch kein FHT80b bekannt, also gibt es niemanden, dem die Uhrzeit gesendet werden kann. Der CUL muss zuerst ein Thermostat hören, was einige Minuten dauern kann."
+    },
+    "send_unknown_device": {
+      "message": "Der FHT80b {code} wurde noch nicht gehört, deshalb kann ihm nichts gesendet werden. Warte, bis er sendet, was einige Minuten dauern kann."
+    },
+    "send_device_silent": {
+      "message": "Der FHT80b {code} meldet sich seit {minutes} Minuten nicht und würde den Befehl nie abholen. Prüfe seine Batterien und seinen Abstand zum CUL."
+    },
+    "send_device_unconfirmed": {
+      "message": "Der FHT80b {code} hat noch nie einen Befehl dieses CUL bestätigt, deshalb wird ihm nichts von selbst gesendet."
+    },
+    "send_device_unresponsive": {
+      "message": "Der FHT80b {code} hat die letzten Nachrichten nicht bestätigt, deshalb bekommt er nur Befehle, die du auslöst."
+    },
+    "send_not_connected": {
+      "message": "Der CUL ist nicht verbunden, sein Zustand ist {state}. Home Assistant verbindet sich automatisch erneut."
+    },
+    "send_no_credit": {
+      "message": "Das 1-%-Sendebudget des CUL ist aufgebraucht. Es sind noch {credit} ms übrig, nötig sind {minimum} ms. Versuche es in ein paar Minuten erneut."
+    },
+    "send_credit_exhausted": {
+      "message": "Das 1-%-Sendebudget des CUL lag {minutes} Minuten lang unter {minimum} ms, deshalb wurde der Befehl nicht gesendet. Versuche es in ein paar Minuten erneut."
+    },
+    "send_buffer_full": {
+      "message": "Im FHT-Puffer des CUL sind {free} Bytes frei, der Befehl braucht aber {needed} Bytes plus {reserve} Bytes Reserve. Versuche es erneut, nachdem die Thermostate die wartenden Befehle abgeholt haben."
+    },
+    "send_not_queued": {
+      "message": "Der CUL hat die {count} Befehle nicht angenommen, weil sein FHT-Puffer übergelaufen ist (culfw hat `EOB` ausgegeben). Versuche es in ein paar Minuten erneut."
+    },
+    "send_blocked": {
+      "message": "Der Befehl wurde nicht gesendet, weil der CUL-Transport ihn nicht erlaubt. Das ist ein Fehler der Integration, melde ihn bitte. Die Einzelheiten stehen im Protokoll von Home Assistant."
+    },
+    "send_cul_error": {
+      "message": "Der CUL hat auf den Befehl nicht geantwortet, und sein Zustand ist {state}. Prüfe, ob der CUL verbunden ist, und versuche es erneut. Die Einzelheiten stehen im Protokoll von Home Assistant."
+    },
+    "invalid_value": {
+      "message": "Der FHT80b kann diesen Wert nicht annehmen: {detail}"
+    },
+    "entry_not_loaded": {
+      "message": "Dieses Gerät kann nicht entfernt werden, solange die Integration nicht geladen ist. Verbinde den CUL, lade die Integration neu und versuche es erneut."
+    },
+    "holiday_in_past": {
+      "message": "Das Ende des Urlaubs muss in der Zukunft liegen."
+    },
+    "unsupported_hvac_mode": {
+      "message": "Der Modus {mode} wird nicht unterstützt."
+    },
+    "off_with_temperature": {
+      "message": "Aus hält 5,5 °C und lässt sich deshalb nicht mit einer Temperatur kombinieren. Stelle die Temperatur stattdessen mit dem Modus Heizen oder Automatik ein."
+    },
+    "preset_not_settable": {
+      "message": "Die Voreinstellung {preset} kann nicht gewählt werden. Starte die Abwesenheit mit der Aktion `culfw.set_holiday` und beende sie mit der Aktion `climate.set_hvac_mode` und dem Modus `auto`."
+    },
+    "preset_heating_pause": {
+      "message": "Die Temperatur {preset} dieses FHT80b steht auf On (30,5 °C). Das ist die Heizpause und hält das Ventil ohne Ende offen. Eine Voreinstellung wählt sie nicht aus. Stelle zuerst am Thermostat eine Temperatur zwischen 6,0 und 30,0 °C für {preset} ein."
+    },
+    "settings_unknown": {
+      "message": "Die Voreinstellung {preset} braucht die Tages- und Nachttemperatur, die dieser FHT80b noch nicht gemeldet hat. Home Assistant fragt sie automatisch ab, versuche es in ein paar Minuten erneut."
+    },
+    "holiday_too_far": {
+      "message": "Das Ende des Urlaubs muss innerhalb von {max_days} Tagen liegen, weil der FHT80b nur den Tag und den Monat speichert. Wähle ein früheres Ende."
+    },
+    "schedule_partly_sent": {
+      "message": "Nur ein Teil des Wochenprogramms wurde gesendet. Die Tage {sent} sind zum Thermostat unterwegs, die Tage {unsent} wurden nicht gesendet. Setze diese Tage erneut. Der Grund steht im Protokoll von Home Assistant."
+    },
+    "schedule_unknown": {
+      "message": "Das Wochenprogramm dieses FHT80b wurde noch nicht gelesen. Die Integration ruft es von selbst ab, das dauert bis zu etwa 35 Minuten. Um es sofort abzurufen, aktiviere die Taste **Wochenprogramm abrufen** des Thermostats und drücke sie. Versuche es dann erneut, nachdem das Thermostat geantwortet hat."
+    },
+    "schedule_entity_unknown": {
+      "message": "Die Entität {entity_id} ist nicht die Klimaentität eines Thermostats dieser Integration."
+    },
+    "schedule_time_invalid": {
+      "message": "{day}: {value} ist keine Uhrzeit. Schreibe sie als HH:MM, zum Beispiel 06:30, und nimm 24:00 für das Ende des Tages."
+    },
+    "schedule_time_step": {
+      "message": "{day}: {value} ist kein Vielfaches von {step} Minuten. Der FHT80b schaltet in Schritten von {step} Minuten."
+    },
+    "schedule_too_many_ranges": {
+      "message": "{day}: {count} Zeitbereiche sind zu viele. Der FHT80b nimmt höchstens {max_ranges} Bereiche pro Tag."
+    },
+    "schedule_range_backwards": {
+      "message": "{day}: Der Bereich von {start} bis {end} muss nach seinem Beginn enden. Nimm 24:00 für Mitternacht am Ende des Tages."
+    },
+    "schedule_ranges_overlap": {
+      "message": "{day}: Die Bereiche von {first_start} bis {first_end} und von {second_start} bis {second_end} überlappen sich."
+    }
+  },
+  "services": {
+    "set_holiday": {
+      "name": "Urlaub setzen",
+      "description": "Hält eine Temperatur bis zum angegebenen Zeitpunkt, danach kehrt der FHT80b zum Wochenprogramm zurück. Heute oder morgen: Party-Modus, endet zur angegebenen Uhrzeit (10-Minuten-Schritte). Später: Urlaubsmodus, endet um 00:00 des angegebenen Tages. Das Ende kann höchstens 364 Tage entfernt liegen.",
+      "fields": {
+        "until": {
+          "name": "Bis",
+          "description": "Ende des Urlaubs als Datum mit Uhrzeit, in der Zeitzone von Home Assistant. Es muss in der Zukunft liegen und darf höchstens 364 Tage entfernt sein. Ein Ende heute oder morgen ist eine Party, die zu dieser Uhrzeit endet (10-Minuten-Schritte), ein späteres Ende ist ein Urlaub, der um 00:00 des Tages endet."
+        },
+        "temperature": {
+          "name": "Temperatur",
+          "description": "Temperatur, die bis zum Ende gehalten wird, von 6,0 bis 30,0 °C."
+        }
+      }
+    },
+    "get_schedule": {
+      "name": "Wochenprogramm lesen",
+      "description": "Gibt das Wochenprogramm zurück, das der FHT80b gemeldet hat, als Zeitbereiche jedes Tages, in denen er auf die Tagestemperatur regelt. Die Integration ruft das Wochenprogramm von selbst ab (siehe die Option **Wochenprogramme automatisch abrufen**). Um es sofort abzurufen, aktiviere die Taste **Wochenprogramm abrufen** des Thermostats und drücke sie. Ein Tag, den das Thermostat noch nicht gemeldet hat, fehlt in der Antwort, und die Aktion schlägt fehl, solange es noch keinen Tag gemeldet hat."
+    },
+    "set_schedule": {
+      "name": "Wochenprogramm setzen",
+      "description": "Setzt die Zeitbereiche des Wochenprogramms, in denen der FHT80b auf die Tagestemperatur regelt. Außerhalb der Bereiche regelt er auf die Nachttemperatur. Weggelassene Tage bleiben unverändert. Das Thermostat nimmt pro Zeitfenster einen Tag entgegen, eine ganze Woche dauert deshalb etwa 15 Minuten.",
+      "fields": {
+        "monday": {
+          "name": "Montag",
+          "description": "Die Zeitbereiche für Montag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "tuesday": {
+          "name": "Dienstag",
+          "description": "Die Zeitbereiche für Dienstag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "wednesday": {
+          "name": "Mittwoch",
+          "description": "Die Zeitbereiche für Mittwoch, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "thursday": {
+          "name": "Donnerstag",
+          "description": "Die Zeitbereiche für Donnerstag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "friday": {
+          "name": "Freitag",
+          "description": "Die Zeitbereiche für Freitag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "saturday": {
+          "name": "Samstag",
+          "description": "Die Zeitbereiche für Samstag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        },
+        "sunday": {
+          "name": "Sonntag",
+          "description": "Die Zeitbereiche für Sonntag, höchstens zwei. Jeder Bereich hat einen Beginn und ein Ende in 10-Minuten-Schritten, zum Beispiel 06:00 und 08:30, und 24:00 ist das Ende des Tages. Eine leere Liste leert den Tag, er läuft dann ganztägig mit der Nachttemperatur."
+        }
+      }
+    }
+  },
+  "selector": {
+    "contact_type": {
+      "options": {
+        "window": "Fenster",
+        "door": "Tür"
+      }
+    },
+    "contact_thermostat": {
+      "options": {
+        "none": "Nicht zugeordnet",
+        "suggested_low": "{thermostat} (vorgeschlagen, geringe Sicherheit)",
+        "suggested_medium": "{thermostat} (vorgeschlagen, mittlere Sicherheit)",
+        "suggested_high": "{thermostat} (vorgeschlagen, hohe Sicherheit)"
+      }
+    }
+  }
+}

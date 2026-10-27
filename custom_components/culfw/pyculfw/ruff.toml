@@ -1,0 +1,15 @@
+# The library has to stay free of Home Assistant so that it can move to a package of its
+# own. Ruff reads this file for the files below this directory only, which keeps the
+# bans out of the integration. tests/pyculfw/test_isolation.py checks the same on the
+# syntax tree and that no ban of the root configuration gets lost: ruff replaces the
+# table of the parent instead of merging it, so the bans are repeated here.
+extend = "../../../pyproject.toml"
+
+[lint.flake8-tidy-imports.banned-api]
+"async_timeout".msg = "use asyncio.timeout instead"
+"pytz".msg = "use zoneinfo instead"
+"tests".msg = "You should not import tests"
+"__future__.annotations".msg = "It should not be needed because Home Assistant requires Python 3.14+"
+"homeassistant".msg = "culfw must not import Home Assistant"
+"probatio".msg = "culfw must not import the validation library of Home Assistant"
+"voluptuous".msg = "culfw must not import the validation library of Home Assistant"

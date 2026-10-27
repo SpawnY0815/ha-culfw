@@ -1,0 +1,37 @@
+{
+  "domain": "culfw",
+  "name": "culfw (CUL)",
+  "after_dependencies": [
+    "frontend",
+    "lovelace"
+  ],
+  "codeowners": [
+    "@SpawnY0815"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "http",
+    "usb",
+    "websocket_api"
+  ],
+  "documentation": "https://github.com/SpawnY0815/ha-culfw",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/SpawnY0815/ha-culfw/issues",
+  "loggers": [
+    "serialx"
+  ],
+  "requirements": [
+    "serialx>=1.11.0,<2",
+    "usb-devices>=0.5.1,<1"
+  ],
+  "usb": [
+    {
+      "vid": "03EB",
+      "pid": "204B",
+      "manufacturer": "busware*",
+      "description": "*cul*"
+    }
+  ],
+  "version": "0.3.0"
+}

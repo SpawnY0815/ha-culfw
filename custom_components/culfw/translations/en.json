@@ -1,0 +1,451 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Connect the CUL",
+        "description": "Home Assistant reads the version and the central code from the CUL to check the connection. It does not change anything on the stick.",
+        "data": {
+          "device": "Serial port"
+        },
+        "data_description": {
+          "device": "The port of the CUL. A path such as `/dev/ttyACM0` is stored as its stable path under `/dev/serial/by-id/` when the host has one. If another program such as FHEM uses the CUL, stop it first."
+        }
+      },
+      "usb_confirm": {
+        "title": "CUL found",
+        "description": "Do you want to set up the CUL at `{device}`? Home Assistant reads the version and the central code from the CUL to check the connection. It does not change anything on the stick."
+      },
+      "house_code": {
+        "title": "Central code",
+        "description": "The **central code** is the code of the CUL, the central of your FHT system. FHEM calls it FHTID, and this documentation also calls it the house code. The CUL currently holds `{current}`. Thermostats that work with FHEM keep working with the same code.\n\n**New setup:** choose any code and release every FHT80b for registration. Hold **PROG** until `Sond` shows, select `CEnt`, press **PROG**, choose `nA` and confirm with **PROG**. It then shows `On`.\n\nThe **security code** (`CodE`) of a thermostat is a different code that you do not change here. To read it, hold **PROG** until `Sond` shows, choose `CodE` with the wheel and confirm with **PROG**. The display shows `Code 1` with three digits, for example `063`. Confirm again and it shows `Code 2`, for example `072`.\n\nTo see or change the central code later, select **Reconfigure** under **Settings** > **Devices & services** > **culfw (CUL)**.",
+        "data": {
+          "first_pair": "Central code, first number",
+          "second_pair": "Central code, second number"
+        },
+        "data_description": {
+          "first_pair": "1 to 99, for example 16",
+          "second_pair": "1 to 99, for example 52"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure the CUL",
+        "description": "Change the serial port, for example after you moved the stick to another USB port, or the central code of the CUL, which is currently `{current}`. A different central code is written to the CUL after you confirm it. Every FHT80b must then be released for registration again: hold **PROG** until `Sond` shows, select `CEnt`, press **PROG** and choose `nA`. Home Assistant reloads the integration afterwards.",
+        "data": {
+          "device": "Serial port",
+          "first_pair": "Central code, first number",
+          "second_pair": "Central code, second number"
+        },
+        "data_description": {
+          "device": "The port of the CUL. A path such as `/dev/ttyACM0` is stored as its stable path under `/dev/serial/by-id/` when the host has one.",
+          "first_pair": "1 to 99, for example 16",
+          "second_pair": "1 to 99, for example 52"
+        }
+      },
+      "confirm_house_code": {
+        "title": "Overwrite the central code?",
+        "description": "The CUL holds the central code `{current}`. Overwriting it with `{new}` rewrites the EEPROM of the CUL and clears all its FHT buffers. FHT80b thermostats that are registered with `{current}` no longer accept commands until you release them for registration (`CEnt`, `nA`) and they register with `{new}`. The security code (`CodE`) of a thermostat does not change.",
+        "submit": "Overwrite"
+      },
+      "listen_menu": {
+        "title": "Find your devices",
+        "description": "Devices announce themselves only when they send, so the integration listens to the radio for about {minutes} minutes. Thermostats send about every 2 minutes. Window contacts send when they change and otherwise about every 4 minutes, so open or close a contact to make it appear sooner.\n\nEvery thermostat needs working batteries and `CEnt` on `On` (the previous step describes the release with `nA`), otherwise it does not send and does not appear. A device that is missing can be added later: the integration adds new devices automatically (see the option **Add new devices automatically**) or lists them as candidates. You can also skip the listening now, for example while the batteries are out.",
+        "menu_options": {
+          "listen": "Listen for devices",
+          "summary": "Skip and set up without devices"
+        }
+      },
+      "listen": {
+        "title": "Listening for devices"
+      },
+      "summary": {
+        "title": "Devices found",
+        "description": "**Thermostats heard:** {thermostats}\n\n**Window contacts heard:** {contacts}\n\nThe number in brackets is the signal strength, which helps to tell your devices from those of a neighbor. You can ignore a device of a neighbor later in the options. A device that is missing is added automatically as soon as it sends, so you can set up now and wait for it.\n\nThe devices listed here become devices in Home Assistant when their next telegram arrives, so the naming dialog that follows does not list them. Name them later on their device page under **Settings** > **Devices & services** > **Devices**.\n\nIf window contacts were heard, each one gets a field below where you choose whether it watches a window or a door, because a contact cannot tell. A contact also belongs to a thermostat, but neither of them tells which. When the devices have sent for a while, you can assign each contact to its thermostat, and change the window or door choice, under **Settings** > **Devices & services** > **culfw (CUL)** > **Configure**.\n\nThe integration also adds the week program card to your dashboards, so that you can see and edit the week program of a thermostat. You can turn that off later under **Settings** > **Devices & services** > **culfw (CUL)** > **Configure**.",
+        "data": {
+          "read_week_programs": "Read week programs automatically"
+        },
+        "data_description": {
+          "read_week_programs": "Reading takes up to about 35 minutes per thermostat, one after another: the first two days arrive after about 11 minutes and all seven after about 35 minutes, so 4 thermostats take about 2.5 hours. It runs in the background. You can change this later under **Settings** > **Devices & services** > **culfw (CUL)** > **Configure**."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the serial port. Check that the CUL is plugged in and that Home Assistant is allowed to use the port.",
+      "port_missing": "The serial port does not exist. Check that the CUL is plugged in and select its port again.",
+      "port_in_use": "Another program is using the serial port. Stop that program, for example FHEM, and try again.",
+      "permission_denied": "Home Assistant is not allowed to open the serial port. Give the user that runs Home Assistant access to the port, for example by adding it to the `dialout` group.",
+      "no_answer": "The device does not answer. Check that it is a CUL with culfw.",
+      "not_culfw": "The device does not answer like a CUL with culfw. Check that you selected the right serial port.",
+      "invalid_house_code": "The CUL cannot use this central code. Enter each of the two numbers as a whole number from 1 to 99. The CUL cannot use a 0.",
+      "unknown": "Unexpected error"
+    },
+    "progress": {
+      "listen": "Devices appear when they send. Thermostats send about every 2 minutes, window contacts about every 4 minutes. A thermostat with empty batteries or with `CEnt` not on `On` does not appear. You can add it later: the integration adds new devices automatically (option) or lists them as candidates.\n\nThis takes about {minutes} minutes. If you close this dialog, the setup is cancelled.\n\n**Thermostats heard:** {thermostats}\n\n**Window contacts heard:** {contacts}"
+    },
+    "abort": {
+      "already_configured": "The CUL is already set up, and only one CUL is supported. To change the serial port or the central code, select **Reconfigure** in the menu of the integration.",
+      "cannot_listen": "Home Assistant could not listen to the CUL at `{device}`. Check that the CUL is still plugged in and that no other program uses it, then start the setup again."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "culfw options",
+        "data": {
+          "fht80b_stale_hours": "FHT80b silent after",
+          "fht80tf_stale_hours": "FHT80 TF silent after",
+          "auto_add_devices": "Add new devices automatically",
+          "candidates_to_add": "Add new devices",
+          "candidates_to_ignore": "Ignore new devices",
+          "ignored_devices": "Ignored devices",
+          "read_week_programs": "Read week programs automatically",
+          "add_card": "Add the week program card automatically"
+        },
+        "data_description": {
+          "fht80b_stale_hours": "Hours without any telegram after which an FHT80b counts as gone: its values become unavailable and a repair is raised. It reports about every 2 minutes.",
+          "fht80tf_stale_hours": "Hours without any telegram after which an FHT80 TF counts as gone: its values become unavailable and a repair is raised. It reports about every 4 minutes.",
+          "auto_add_devices": "Adds every FHT device that the CUL hears for the first time. Turn it off when devices of a neighbor are in range: new devices then wait here as candidates until you add or ignore them.",
+          "candidates_to_add": "Devices that the CUL heard while new devices are not added automatically, with their signal strength, which helps to tell your own devices from a neighbor's. The devices you select are added when you save.",
+          "candidates_to_ignore": "The devices you select are added to the ignored devices when you save, and their telegrams are dropped.",
+          "ignored_devices": "Telegrams of these devices are dropped and the devices are removed, for example a neighbor's FHT80b. Deleting a device that still transmits adds it here.",
+          "read_week_programs": "Reads the week program of each thermostat once after its first contact, again after the CUL was reset, and then every 24 hours, so that the **Heating program** calendar shows what the thermostat holds, also after you changed it at the thermostat. A thermostat answers only in its time slots, so reading the seven days takes about 35 minutes, and one thermostat is read at a time. Turn it off to read a week program only with the **Refresh schedule** button.",
+          "add_card": "Adds the week program card to the resources of your dashboards, so that **FHT week program** appears in the list of cards when you edit a dashboard. Turn it off to add the file `/culfw/frontend/fht-schedule-card.js` yourself as a JavaScript module under **Settings** > **Dashboards** > menu **Resources**. Turning it off does not remove a resource that is there already."
+        },
+        "sections": {
+          "recovery": {
+            "name": "Recovery",
+            "description": "Last resorts of the watchdog when the CUL stays silent. Both make the stick leave the USB bus for a moment, which is safe only when Home Assistant gets the whole USB device and finds the stick again under its path in `/dev/serial/by-id/`. That is the case when a virtual machine gets the stick by vendor and product ID. Leave both off when the stick is bound to a fixed port such as `/dev/ttyACM0`.",
+            "data": {
+              "allow_reboot": "Allow rebooting the CUL",
+              "allow_usb_reset": "Allow resetting the USB link"
+            },
+            "data_description": {
+              "allow_reboot": "Lets the watchdog reboot the CUL, which then enumerates on USB again. Turn it on only when the stick is passed through by vendor and product ID and has a link under `/dev/serial/by-id/`.",
+              "allow_usb_reset": "Lets the watchdog reset the USB link of the stick, which keeps the FHT buffers of the CUL. Turn it on only when the stick is passed through by vendor and product ID and has a link under `/dev/serial/by-id/`. The reset is used only when the serial port of the integration is that link."
+            }
+          }
+        }
+      },
+      "contact_types": {
+        "title": "FHT80 TF contacts",
+        "description": "Choose for each FHT80 TF contact whether it watches a window or a door. The contact cannot tell, and the choice sets the device class of its open state. If you changed the device class of that entity in its settings, your choice there stays."
+      },
+      "contact_thermostats": {
+        "title": "Window contacts of each thermostat",
+        "description": "Choose for each FHT80 TF contact the thermostat it is paired with. A thermostat stores up to four contacts and shows only the state of each slot on its display, never the code of a contact, so the thermostat cannot tell and the radio cannot say for sure. A thermostat that answers when a contact opens or closes, usually within seconds and sometimes after a minute or more, is suggested for that contact, with a confidence of low, medium or high. Opening and closing the window once is enough if the thermostat answers quickly, otherwise it takes about two rounds. Nothing changes until you save. The assignment is for your overview: it adds the thermostat to the attributes of the contact and the contact to the attributes of the thermostat. It changes nothing on the thermostats. To pair a contact with another thermostat, use the menu FEn at the thermostat."
+      }
+    },
+    "error": {
+      "candidate_conflict": "A device cannot be added and ignored at the same time. Select it in only one of the two lists."
+    }
+  },
+  "issues": {
+    "device_silent": {
+      "title": "{name} is silent",
+      "short_title": "Device silent",
+      "description": "{name} has not sent a telegram for more than {hours} h (last heard: {last_seen}). Its values are unavailable until it reports again.\n\nThe thermostats and window contacts report on their own every few minutes. One that stays silent has weak batteries, is out of range of the CUL, or has been switched off for good.\n\nTo fix this:\n\n1. Check the batteries of {name} and replace them if they are weak.\n2. If the device is far from the CUL, move the CUL closer or away from metal and other radio sources.\n3. If {name} belongs to a neighbor or is gone for good, add it to **Ignored devices** in the options of the integration.\n\nOnce the CUL hears {name} again, this issue disappears and its entities become available."
+    },
+    "battery_low": {
+      "title": "The battery of {name} is low",
+      "short_title": "Battery low",
+      "description": "{name} reports that its battery is weak.\n\nA device with a weak battery can stop reporting before the battery is empty. Its values then become unavailable.\n\nTo fix this:\n\n1. Replace the batteries of {name}.\n2. Wait a few minutes until the device reports again.\n\nThe issue disappears with the first telegram of {name} that no longer reports a weak battery."
+    },
+    "fht_buffer_low": {
+      "title": "The FHT send buffer of the CUL is almost full",
+      "short_title": "Send buffer almost full",
+      "description": "The FHT send buffer of the CUL has only {free} bytes free.\n\nMessages for a thermostat wait in this buffer until the thermostat asks for them. Messages for a thermostat that stays silent never leave it. When the buffer is full, the CUL drops new messages, and commands and time syncs no longer reach any thermostat.\n\nTo fix this:\n\n1. Look for repair issues about silent devices and fix their cause, usually weak batteries or a missing radio link.\n2. Add devices that are gone for good, or that belong to a neighbor, to **Ignored devices** in the options of the integration.\n\nMessages that are already waiting leave the buffer when their thermostat collects them, or when the integration clears the buffer, which it does when the CUL reports that the buffer is full. This issue disappears with the first check of the CUL after that, within a few minutes."
+    },
+    "cul_unreachable": {
+      "title": "The CUL is not reachable",
+      "short_title": "CUL not reachable",
+      "description": "Home Assistant has not been able to talk to the CUL on `{port}` for {minutes} minutes. No FHT telegrams arrive and no commands go out.\n\nThe CUL is the radio stick that connects Home Assistant to the thermostats and window contacts. Until it is back, all FHT devices are unavailable, and the issues about silent devices are hidden because the outage explains them.\n\nTo fix this:\n\n1. Check that the stick is plugged in. If Home Assistant runs in a virtual machine, check that the machine gets the stick.\n2. Check that no other program, such as FHEM, holds `{port}`.\n3. Unplug the stick and plug it in again.\n\nThe integration keeps reconnecting by itself. When the CUL answers again, this issue disappears and the FHT devices become available."
+    },
+    "watchdog_exhausted": {
+      "title": "The CUL stays silent",
+      "short_title": "CUL silent",
+      "description": "The CUL on `{port}` answers commands, but no radio telegram has arrived although the integration tried every recovery step. Last report of the watchdog: {detail}.\n\nWithout telegrams the integration cannot see any FHT device, and it cannot tell whether its commands arrive.\n\nTo fix this:\n\n1. Check that the thermostats have working batteries and are in range.\n2. Move the stick away from other electronics, metal and USB 3 devices, for example with a USB extension cable.\n3. Unplug the stick and plug it in again.\n4. Reload the integration under **Settings** > **Devices & services**.\n\nThe integration starts its recovery steps again after a while. This issue disappears as soon as a telegram arrives or the connection to the CUL changes."
+    },
+    "time_sync_missing": {
+      "title": "{name} does not take the time",
+      "short_title": "Time sync missing",
+      "description": "{name} has not confirmed the last {missed} time syncs.\n\nThe integration sends the date and time to every thermostat each night. Without them the clock of a thermostat drifts and its day and night program runs at the wrong time. A missing confirmation means that the messages probably do not reach the thermostat.\n\nTo fix this:\n\n1. Check that {name} is in range of the CUL and that its batteries are fine.\n2. Check that {name} is registered with the central code that the CUL uses (`CEnt` shows `On` on the thermostat).\n3. Check that the FHT send buffer of the CUL is not full. A repair issue tells you when it is.\n4. Press **Sync time** on the CUL device.\n\nThe issue disappears as soon as {name} confirms a time sync, at the latest after the nightly sync at 04:05."
+    },
+    "device_unresponsive": {
+      "title": "{name} does not collect commands",
+      "short_title": "Not collecting commands",
+      "description": "{name} did not echo the last messages of the integration.\n\nA thermostat echoes every command it receives. Without an echo the integration cannot tell whether its messages arrive, so it sends nothing on its own to {name} (the nightly time sync and the reading of its settings) until it echoes a command again. Commands that you set yourself still go out.\n\nTo fix this:\n\n1. Check that {name} has working batteries and is in range of the CUL.\n2. Check that {name} is registered with the central code that the CUL uses (`CEnt` shows `On` on the thermostat), and not with another central.\n3. Set a temperature on {name} from Home Assistant to try it again.\n\nThe issue disappears as soon as {name} echoes a command."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "valve": {
+        "name": "Valve"
+      },
+      "last_seen": {
+        "name": "Last seen"
+      },
+      "fht_buffer_free": {
+        "name": "FHT buffer free"
+      },
+      "duty_cycle_credit": {
+        "name": "Duty cycle credit"
+      },
+      "eob_count": {
+        "name": "Buffer overflows"
+      },
+      "lovf_count": {
+        "name": "Duty cycle overflows"
+      },
+      "time_ack": {
+        "name": "Time acknowledged"
+      },
+      "actuator_state": {
+        "name": "Actuator state",
+        "state": {
+          "regulating": "Regulating",
+          "sync_now": "Synchronizing",
+          "on": "Fully open",
+          "off": "Closed",
+          "offset": "Setting offset",
+          "lime_protection": "Lime protection",
+          "sync_time": "Waiting for time sync",
+          "test": "Testing",
+          "pair": "Pairing"
+        }
+      },
+      "holiday_end": {
+        "name": "Holiday ends"
+      },
+      "week_program_status": {
+        "name": "Week program status",
+        "state": {
+          "unknown": "Unknown",
+          "partial": "Partly read",
+          "complete": "Complete",
+          "writing": "Writing"
+        }
+      }
+    },
+    "binary_sensor": {
+      "low_temperature": {
+        "name": "Low temperature alarm"
+      },
+      "window_sensor_fault": {
+        "name": "Window sensor fault"
+      }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Sync time"
+      },
+      "refresh_settings": {
+        "name": "Refresh settings"
+      },
+      "refresh_schedule": {
+        "name": "Refresh schedule"
+      }
+    },
+    "calendar": {
+      "heating_program": {
+        "name": "Heating program"
+      }
+    },
+    "number": {
+      "day_temperature": {
+        "name": "Day temperature"
+      },
+      "night_temperature": {
+        "name": "Night temperature"
+      },
+      "windowopen_temperature": {
+        "name": "Window open temperature"
+      },
+      "lowtemp_offset": {
+        "name": "Low temperature alarm offset"
+      }
+    }
+  },
+  "exceptions": {
+    "cul_missing": {
+      "message": "The serial port {port} does not exist. Plug in the CUL or reconfigure the integration with the right port. Home Assistant tries again automatically."
+    },
+    "cul_busy": {
+      "message": "Another program is using the serial port {port}. Stop that program, for example FHEM. Home Assistant tries again automatically."
+    },
+    "cul_permission": {
+      "message": "Home Assistant is not allowed to open the serial port {port}. Give the user that runs Home Assistant access to the port. Home Assistant tries again automatically."
+    },
+    "cul_no_answer": {
+      "message": "The device on {port} does not answer. Check that it is a CUL with culfw and that no other program is using it. Home Assistant tries again automatically."
+    },
+    "cul_not_culfw": {
+      "message": "The device on {port} does not answer like a CUL with culfw. Check that the right port is selected. Details: {error}"
+    },
+    "cul_not_ready": {
+      "message": "The CUL on {port} is not ready. Home Assistant tries again automatically. Details: {error}"
+    },
+    "cul_status_failed": {
+      "message": "Cannot read the status of the CUL: {error}"
+    },
+    "time_sync_failed": {
+      "message": "No FHT80b took the time. Thermostats tried: {count}. The reasons are in the log of Home Assistant."
+    },
+    "no_fht80b": {
+      "message": "No FHT80b is known yet, so there is nobody to send the time to. The CUL has to hear a thermostat first, which can take a few minutes."
+    },
+    "send_unknown_device": {
+      "message": "The FHT80b {code} has not been heard yet, so nothing can be sent to it. Wait until it transmits, which can take a few minutes."
+    },
+    "send_device_silent": {
+      "message": "The FHT80b {code} has been silent for {minutes} minutes, so it would never collect the command. Check its batteries and its distance to the CUL."
+    },
+    "send_device_unconfirmed": {
+      "message": "The FHT80b {code} never echoed a command of this CUL, so nothing is sent to it on its own."
+    },
+    "send_device_unresponsive": {
+      "message": "The FHT80b {code} did not echo the last messages, so only commands that you ask for are sent to it."
+    },
+    "send_not_connected": {
+      "message": "The CUL is not connected, its state is {state}. Home Assistant connects again automatically."
+    },
+    "send_no_credit": {
+      "message": "The 1% radio budget of the CUL is used up. It has {credit} ms left and needs {minimum} ms. Try again in a few minutes."
+    },
+    "send_credit_exhausted": {
+      "message": "The 1% radio budget of the CUL stayed below {minimum} ms for {minutes} minutes, so the command was not sent. Try again in a few minutes."
+    },
+    "send_buffer_full": {
+      "message": "The FHT buffer of the CUL has {free} bytes free, but the command needs {needed} bytes plus {reserve} bytes of reserve. Try again after the thermostats have collected the waiting commands."
+    },
+    "send_not_queued": {
+      "message": "The CUL did not take the {count} commands, because its FHT buffer overflowed (culfw printed `EOB`). Try again in a few minutes."
+    },
+    "send_blocked": {
+      "message": "The command was not sent, because the CUL transport does not allow it. This is a bug of the integration, so please report it. The log of Home Assistant has the details."
+    },
+    "send_cul_error": {
+      "message": "The CUL did not answer the command, and its state is {state}. Check that the CUL is connected and try again. The log of Home Assistant has the details."
+    },
+    "invalid_value": {
+      "message": "The FHT80b cannot take this value: {detail}"
+    },
+    "entry_not_loaded": {
+      "message": "This device cannot be removed while the integration is not loaded. Connect the CUL, reload the integration and try again."
+    },
+    "holiday_in_past": {
+      "message": "The end of the holiday must be in the future."
+    },
+    "unsupported_hvac_mode": {
+      "message": "HVAC mode {mode} is not supported."
+    },
+    "off_with_temperature": {
+      "message": "Off holds 5.5 °C, so it cannot be combined with a temperature. Set the temperature with the `heat` or `auto` mode instead."
+    },
+    "preset_not_settable": {
+      "message": "The preset {preset} cannot be selected. Start away with the action `culfw.set_holiday` and end it with the action `climate.set_hvac_mode` and the mode `auto`."
+    },
+    "preset_heating_pause": {
+      "message": "The {preset} temperature of this FHT80b is set to On (30.5 °C), which is the heating pause and holds the valve open without an end. A preset does not select it. Set a temperature between 6.0 and 30.0 °C for {preset} at the thermostat first."
+    },
+    "settings_unknown": {
+      "message": "The preset {preset} needs the day and night temperatures, which this FHT80b has not reported yet. Home Assistant asks for them automatically, so try again in a few minutes."
+    },
+    "holiday_too_far": {
+      "message": "The end of the holiday must be within {max_days} days, because the FHT80b stores only the day and the month. Choose an earlier end."
+    },
+    "schedule_partly_sent": {
+      "message": "Only part of the week program was sent. The days {sent} are on their way to the thermostat, and the days {unsent} were not sent. Set those days again. The reason is in the log of Home Assistant."
+    },
+    "schedule_unknown": {
+      "message": "The week program of this FHT80b has not been read yet. The integration reads it by itself, which takes up to about 35 minutes. To read it now, enable the **Refresh schedule** button of the thermostat and press it. Then try again after the thermostat has answered."
+    },
+    "schedule_entity_unknown": {
+      "message": "The entity {entity_id} is not the climate entity of a thermostat of this integration."
+    },
+    "schedule_time_invalid": {
+      "message": "{day}: {value} is not a time of day. Write it as HH:MM, for example 06:30, and use 24:00 for the end of the day."
+    },
+    "schedule_time_step": {
+      "message": "{day}: {value} is not a multiple of {step} minutes. The FHT80b switches in steps of {step} minutes."
+    },
+    "schedule_too_many_ranges": {
+      "message": "{day}: {count} time ranges are too many. The FHT80b takes at most {max_ranges} ranges per day."
+    },
+    "schedule_range_backwards": {
+      "message": "{day}: the range from {start} to {end} must end after it starts. Use 24:00 for midnight at the end of the day."
+    },
+    "schedule_ranges_overlap": {
+      "message": "{day}: the ranges from {first_start} to {first_end} and from {second_start} to {second_end} overlap."
+    }
+  },
+  "services": {
+    "set_holiday": {
+      "name": "Set holiday",
+      "description": "Holds a temperature until the given time, then the FHT80b returns to its week program. Today or tomorrow: party mode, ends at the given time (10-minute steps). Later: holiday mode, ends at 00:00 of the given day. The end can be at most 364 days away.",
+      "fields": {
+        "until": {
+          "name": "Until",
+          "description": "End of the holiday as a date with a time, in the time zone of Home Assistant. It must be in the future and at most 364 days away. An end today or tomorrow is a party that ends at this time (10-minute steps), a later end is a holiday that ends at 00:00 of that day."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "Temperature to hold until the end, from 6.0 to 30.0 °C."
+        }
+      }
+    },
+    "get_schedule": {
+      "name": "Get schedule",
+      "description": "Returns the week program that the FHT80b reported, as the time ranges of every day in which it regulates to the day temperature. The integration reads the week program by itself (see the option **Read week programs automatically**). To read it now, enable the **Refresh schedule** button of the thermostat and press it. A day that the thermostat has not reported yet is left out, and the action fails while it has not reported any."
+    },
+    "set_schedule": {
+      "name": "Set schedule",
+      "description": "Sets the time ranges of the week program in which the FHT80b regulates to the day temperature. Outside the ranges it regulates to the night temperature. Days that are left out stay as they are. The thermostat takes one day in each of its time slots, so a whole week takes about 15 minutes.",
+      "fields": {
+        "monday": {
+          "name": "Monday",
+          "description": "The time ranges of Monday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "tuesday": {
+          "name": "Tuesday",
+          "description": "The time ranges of Tuesday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "wednesday": {
+          "name": "Wednesday",
+          "description": "The time ranges of Wednesday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "thursday": {
+          "name": "Thursday",
+          "description": "The time ranges of Thursday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "friday": {
+          "name": "Friday",
+          "description": "The time ranges of Friday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "saturday": {
+          "name": "Saturday",
+          "description": "The time ranges of Saturday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        },
+        "sunday": {
+          "name": "Sunday",
+          "description": "The time ranges of Sunday, at most two. Each range has a start and an end in steps of 10 minutes, for example 06:00 and 08:30, and 24:00 is the end of the day. An empty list clears the day, which then runs at the night temperature."
+        }
+      }
+    }
+  },
+  "selector": {
+    "contact_type": {
+      "options": {
+        "window": "Window",
+        "door": "Door"
+      }
+    },
+    "contact_thermostat": {
+      "options": {
+        "none": "Not assigned",
+        "suggested_low": "{thermostat} (suggested, low confidence)",
+        "suggested_medium": "{thermostat} (suggested, medium confidence)",
+        "suggested_high": "{thermostat} (suggested, high confidence)"
+      }
+    }
+  }
+}

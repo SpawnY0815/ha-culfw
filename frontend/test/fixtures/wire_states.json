@@ -1,0 +1,157 @@
+{
+  "every_status": {
+    "day_temperature": null,
+    "days": {
+      "friday": {
+        "pending_since": null,
+        "periods": [
+          {
+            "end": "22:00",
+            "start": "06:00"
+          }
+        ],
+        "requested": null,
+        "status": "error"
+      },
+      "monday": {
+        "pending_since": null,
+        "periods": [
+          {
+            "end": "22:00",
+            "start": "06:00"
+          }
+        ],
+        "requested": null,
+        "status": "saved"
+      },
+      "saturday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "sunday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "thursday": {
+        "pending_since": null,
+        "periods": [
+          {
+            "end": "22:00",
+            "start": "06:00"
+          }
+        ],
+        "requested": null,
+        "status": "unconfirmed"
+      },
+      "tuesday": {
+        "pending_since": "2026-10-16T18:00:00+00:00",
+        "periods": [
+          {
+            "end": "22:00",
+            "start": "06:00"
+          }
+        ],
+        "requested": [
+          {
+            "end": "06:50",
+            "start": "06:40"
+          },
+          {
+            "end": "07:10",
+            "start": "07:00"
+          }
+        ],
+        "status": "queued"
+      },
+      "wednesday": {
+        "pending_since": "2026-10-16T18:00:00+00:00",
+        "periods": [
+          {
+            "end": "22:00",
+            "start": "06:00"
+          }
+        ],
+        "requested": [
+          {
+            "end": "06:50",
+            "start": "06:40"
+          },
+          {
+            "end": "07:10",
+            "start": "07:00"
+          }
+        ],
+        "status": "sending"
+      }
+    },
+    "limits": {
+      "day_end": "24:00",
+      "max_periods": 2,
+      "step_minutes": 10
+    },
+    "link_up": true,
+    "night_temperature": null,
+    "reachable": true,
+    "week_program_read_at": null
+  },
+  "fresh": {
+    "day_temperature": null,
+    "days": {
+      "friday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "monday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "saturday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "sunday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "thursday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "tuesday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      },
+      "wednesday": {
+        "pending_since": null,
+        "periods": null,
+        "requested": null,
+        "status": "unknown"
+      }
+    },
+    "limits": {
+      "day_end": "24:00",
+      "max_periods": 2,
+      "step_minutes": 10
+    },
+    "link_up": true,
+    "night_temperature": null,
+    "reachable": true,
+    "week_program_read_at": null
+  }
+}

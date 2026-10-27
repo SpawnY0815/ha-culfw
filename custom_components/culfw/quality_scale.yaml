@@ -1,0 +1,174 @@
+rules:
+  # Bronze
+  action-setup: done
+  appropriate-polling:
+    status: done
+    comment: The FHT devices push their telegrams. Only the CUL status (FHT buffer, duty-cycle credit and uptime) is polled, every 5 minutes.
+  brands:
+    status: done
+    comment: The brand folder holds an original icon, a logo and a dark logo, each with its @2x image. They are rendered from the SVG sources in scripts/brand by scripts/render_brand.py and show no mark of Home Assistant, ELV or busware. The offline HACS check and tests/test_manifest.py verify the names, the size, the trim and the transparency, and that the loader sees the folder.
+  common-modules: done
+  config-flow-test-coverage:
+    status: done
+    comment: config_flow.py is covered completely, branches included, and the coverage gate fails the pipeline otherwise. The tests cover the user, USB, reconfigure and options flows, every error of the read, and a second setup, which is refused before any probe. Every test that creates an entry asserts its unique ID, and every test of an error goes on to a created entry or a finished reconfigure. tests/test_config_flow.py checks both rules on its own source and on tests/test_hotplug.py, because the pylint plugin of Home Assistant that enforces them runs only in the core repository.
+  config-flow:
+    status: done
+    comment: The port is asked for with the serial port selector and the house code as two number selectors for the numbers on the display of the thermostat, after the flow has read the CUL, and every field has a description (the fields of the contact page are named after the contacts, so the description of that page covers them). The port and the house code are connection data, while the thresholds, the handling of new devices, the ignored devices, the reading of the week programs, the card, the recovery steps of the watchdog, the choice between window and door for each contact and the thermostat of each contact are options.
+  dependency-transparency:
+    status: done
+    comment: Both requirements ship with Home Assistant 2026.10.2. serialx (Apache-2.0) is pinned by Home Assistant itself and used by its USB and serial integrations, and usb-devices (MIT) is a requirement of bluetooth-auto-recovery, which the bluetooth integration requires. The manifest allows a compatible range of each, and tests/test_manifest.py checks that the tested pins lie inside it.
+  docs-actions:
+    status: done
+    comment: The README documents culfw.set_holiday, culfw.get_schedule and culfw.set_schedule with their fields and examples. tests/test_readme.py checks every action and field of services.yaml.
+  docs-conditions:
+    status: exempt
+    comment: The integration does not provide conditions. Automations use the states of its entities.
+  docs-high-level-description:
+    status: done
+    comment: The README opens with the CUL868, culfw and the ELV devices, with links to their vendors.
+  docs-installation-instructions:
+    status: done
+    comment: The README lists the prerequisites as numbered steps, the manual installation and the setup in the user interface.
+  docs-removal-instructions:
+    status: done
+    comment: The README describes removing a device and removing the integration, including the stored device state.
+  docs-triggers:
+    status: exempt
+    comment: The integration does not provide triggers. The culfw_watchdog bus event is an ordinary event for event triggers.
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name:
+    status: done
+    comment: Every entity sets has_entity_name through the base classes. The climate entity of a thermostat has no name of its own and shows the name of its device, and every other entity takes its name from a translation or its device class. tests/test_init.py checks both.
+  runtime-data: done
+  test-before-configure:
+    status: done
+    comment: The user step, the confirmation of a USB discovery and the reconfigure step open the port read-only and read the version and the house code of the CUL before they create or change the entry. They show port_missing, port_in_use, permission_denied, cannot_connect, no_answer, not_culfw or unknown on the form when the read fails, and the user can try another port. The probe sends nothing that changes the stick.
+  test-before-setup: done
+  unique-config-entry:
+    status: done
+    comment: The CUL868 has no serial number and the integration supports one CUL, so the unique ID of the entry is the domain. The user step and the USB step set it first, and the user step aborts with already_configured before it opens any port. The manifest has no single_config_entry, because Home Assistant would then abort every discovery before the flow runs.
+
+  # Silver
+  action-exceptions:
+    status: done
+    comment: >-
+      Every action and control entity raises a translated exception for what can be
+      checked at call time: a ServiceValidationError for a mistake of the caller (a
+      value the thermostat cannot take, off combined with a temperature, a preset
+      that cannot be selected, a preset before the settings were read, a holiday in
+      the past or beyond 364 days, a week program that is unknown or has a wrong
+      time range, no FHT80b for the sync button), and a HomeAssistantError from the
+      outbox when the CUL is not connected, the thermostat was not heard for 15
+      minutes, or the duty cycle credit or the send buffer of the CUL is used up. The
+      send errors carry the facts as separate placeholders, and the text of the
+      library error goes to the log only. The one exception is invalid_value, which
+      quotes the validation message of the value that was refused. A week program
+      that is refused in the middle names the days that went out. A deliberate deviation
+      from the rule, written in the README under Known limitations: a control action
+      returns once the outbox has staged the command, not once the thermostat has
+      taken it, because the thermostat collects a message in its own time slot, about
+      every two minutes, and up to six minutes can pass. A failure after the action
+      returned cannot be raised any more. It fires the event culfw_command_expired,
+      which the logbook describes, writes one log line, and the entity shows the value
+      of the thermostat again instead of the requested one. The requested value is
+      shown as pending until the thermostat echoes it.
+  config-entry-unloading: done
+  docs-configuration-parameters:
+    status: done
+    comment: The README lists every option of the options flow with its default. The second page of the options, which asks for a window or a door per contact, has its own paragraph. tests/test_readme.py checks the labels of en.json.
+  docs-installation-parameters:
+    status: done
+    comment: The README describes the serial port and the house code of the setup. tests/test_readme.py checks the labels of en.json.
+  entity-unavailable:
+    status: done
+    comment: The status sensors and the sync button are unavailable as soon as the CUL is disconnected or a status poll fails. The FHT entities are unavailable once a device was silent for longer than its threshold, or once the CUL has been away for 15 minutes. That grace period is deliberate, because a stick that only enumerates again would make every entity flap, and the connectivity sensors show the outage at once. The connectivity, last seen and time acknowledgment entities stay available, because they explain the outage. tests/test_reconnect.py covers the unplug, the grace period, the replug and a status poll that fails while the CUL is connected.
+  integration-owner: done
+  log-when-unavailable:
+    status: done
+    comment: The runtime logs one info line when the CUL is lost, with the cause, and one when it is back, however many reconnect attempts fail in between, because those are debug lines. The issue tracker logs one info line per device that falls silent and one when it is heard again, and none while the CUL is away. A status poll that fails during the outage adds nothing, and one that fails on a connected CUL is logged once by the coordinator of Home Assistant. tests/test_reconnect.py counts every line that an outage writes.
+  parallel-updates:
+    status: done
+    comment: The read-only platforms (sensor, binary sensor and calendar) allow unlimited parallel updates. The climate, number and button platforms send commands, which the outbox serializes, so they allow one.
+  reauthentication-flow:
+    status: exempt
+    comment: The CUL is a local serial device without authentication. The FHT house code is a radio address, not a credential, and the reconfigure flow changes it.
+  test-coverage:
+    status: done
+    comment: scripts/check_coverage.py runs after the tests in the pipeline and fails for every module with 95 percent of the lines covered or less. It lists no exception any more.
+
+  # Gold
+  devices:
+    status: done
+    comment: The CUL and every FHT80b and FHT80 TF are devices with a name, a manufacturer, a model and (for the FHT devices) the CUL as the parent, and all entities hang below one of them. tests/test_init.py pins the device registry and its tree.
+  diagnostics:
+    status: done
+    comment: The diagnostics of the entry and of each device work in every state of the entry and redact the house code (also where an error text names it) and the address of a remote serial port. They show the state and the reason, the transport state and statistics, the CUL status, the settings, schedule and pending commands (state and age) of each device, the command channel of each controller, the last T02 dump, the candidates and ignored devices, the counters of EOB, purges, retirements and rejected telegrams, and the last raw lines. tests/test_diagnostics.py downloads them through the HTTP view, snapshots a busy house and keeps diagnostics.py at 100 percent.
+  discovery-update-info:
+    status: done
+    comment: async_step_usb gives the entry the by-id path of a rediscovered CUL when the stored device node is gone, and Home Assistant reloads the entry. A stored port that still exists, a URL and a by-id path stay as they are, and an ignored entry is not touched. The same abort reloads an entry that waits for its next setup retry. tests/test_config_flow.py covers each case. A port event callback in async_setup does the same for a stick that only the stored port selects, and also ends the wait of the reconnect of a loaded entry when the stick is plugged in again. tests/test_hotplug.py covers it, and moves a retrying entry and a loaded entry that lost its stick to a new by-id path through the real USB integration.
+  discovery:
+    status: done
+    comment: The manifest has a USB matcher for the busware CUL868 (a device with the same USB IDs and other strings is not matched) and the config flow handles it in async_step_usb, with a confirmation step and the name of the USB device as the title of the discovery. tests/test_hotplug.py plugs the stick into the real USB integration and runs the offered flow to a created entry.
+  docs-data-update:
+    status: done
+    comment: The README section Data updates tells that the devices push their telegrams, that the CUL status is polled every 5 minutes, when the settings are read and how long a command stays pending.
+  docs-examples:
+    status: done
+    comment: The README shows three automations (a window left open, a low battery and a holiday) in collapsible blocks.
+  docs-known-limitations:
+    status: done
+    comment: The README lists the limits of the radio, the pending model, the deviation from action-exceptions, the unverified points and the non-goals.
+  docs-supported-devices:
+    status: done
+    comment: The README lists the supported and the unsupported devices.
+  docs-supported-functions:
+    status: done
+    comment: The README lists every entity per platform with description, devices and remarks, and a section on the week program says how to read it, how to write it and what the calendar shows. tests/test_readme.py compares the list with the entity descriptions of the code.
+  docs-troubleshooting:
+    status: done
+    comment: The README has a symptom, description and resolution for every repair issue and every setup error. tests/test_readme.py checks the repair issues and the setup errors.
+  docs-use-cases:
+    status: done
+    comment: The README introduction lists what the integration is for.
+  dynamic-devices:
+    status: done
+    comment: The platforms add the entities of a new FHT device when its first telegram arrives, and again for a device that the user removed and that talks later. A device that was ignored, or that waits as a candidate while adding is manual, gets none. A reconnect, a reload and a repeated announcement of a known device add no second entity. tests/test_init.py, tests/test_reconnect.py, tests/test_sensor.py, tests/test_calendar.py and tests/test_climate.py cover each case.
+  entity-category:
+    status: done
+    comment: The status, signal, battery, connectivity, last seen, time acknowledgment, actuator state, holiday end, counter and window sensor fault entities are diagnostic. The sync button, the two refresh buttons and the four number entities that hold settings of the thermostat (day, night and window open temperature, low temperature alarm offset) are config. The climate entity, the heating program calendar, the temperature, the valve, the windows and the low temperature alarm are neither. The metadata tests of the sensor, binary sensor, number and button platforms pin the category of every entity.
+  entity-device-class:
+    status: done
+    comment: Every entity that has a device class declares it (temperature, temperature delta, signal strength, timestamp, enum, data size, duration, uptime, battery, connectivity, window, door and problem), together with the unit. The valve position is a percentage without a class, because Home Assistant has no class for it. The metadata tests pin the class and the unit of every entity.
+  entity-disabled-by-default:
+    status: done
+    comment: The signal strength, last seen, actuator state and holiday end of a device, the low temperature alarm offset, the button that refreshes the week program and the duty cycle overflow counter are disabled by default, because they are noise, for chasing a fault, set once at installation, or a read of the week program (35 minutes of radio traffic) that the integration does once a day anyway. test_only_the_noisy_diagnostics_are_disabled_by_default pins the set, and the metadata tests pin the flag of each entity.
+  entity-translations:
+    status: done
+    comment: Every entity with a name of its own (the heating program calendar among them) has a translation key and a name in en.json and de.json, and the other entities take the name of their device class. The states of the actuator state are translated. tests/test_translations.py checks that each key in the source has a text.
+  exception-translations:
+    status: done
+    comment: Every exception that the integration raises for the user carries a translation domain and key and no text of its own. These are the setup errors, the failed status poll, the errors of the entity actions and the refusal to remove a device. The texts are in en.json and de.json, and the library errors reach the user only as placeholders. tests/test_translations.py checks that each key has a text, and tests/test_quality_scale.py that no raise has a plain text.
+  icon-translations:
+    status: done
+    comment: icons.json gives an icon to every entity that has a translation key and no device class (the buttons and the heating program calendar), an icon per state to the actuator state, and an icon to each action. The number entities have a device class, so Home Assistant supplies their icons, and the climate presets are the standard ones, which Home Assistant gives an icon too (none shows the default). tests/test_icons.py checks that no entity lacks an icon, that no icon overrides a device class, that every state has one, and that the numbers and the presets get theirs from Home Assistant.
+  reconfiguration-flow:
+    status: done
+    comment: async_step_reconfigure changes the serial port and the house code. It reads the CUL on a new port, skips the read while the loaded entry holds the port, asks for the confirmation of a changed house code, and ends with async_update_reload_and_abort, so the entry reloads once and the abort carries the central reconfigure_successful text.
+  repair-issues:
+    status: done
+    comment: The seven issues are raised only for problems the user can act on, and each one is deleted when its cause is gone. None is fixable, because every fix is physical (batteries, range, the plug) or an option, so none has a fix flow. Each text has a title, a short title and a description in the order what happened, why it matters, numbered steps and what to expect. The battery steps are generic until they are checked against the manuals. A dismissal survives a reload and a restart, because the issues stay in the registry while the cause lasts. tests/test_repairs.py raises every issue from the real code paths and checks the texts as the translation loader of Home Assistant delivers them.
+  stale-devices:
+    status: done
+    comment: Radio absence is not provable, because a battery device may skip a window for hours and come back, so no device is removed on its own. A silent device stays in the registry, unavailable and with its repair, until the user deletes it. The hook behind the delete button keeps the CUL and refuses while the entry is not loaded. It forgets a silent device, which returns with its next telegram, and it ignores a device that still transmits, because that one would come back at once. tests/test_init.py and tests/test_repairs.py cover the whole chain.
+
+  # Platinum
+  async-dependency:
+    status: done
+    comment: serialx is asyncio. The USB link reset looks up the sysfs interface of the port in the executor and then awaits USBDevice.async_reset of usb-devices, which runs the ioctl in the executor too, so no call of the event loop blocks. The package is imported only when a reset is due, and the import runs in the executor too, because it reads files. tests/pyculfw/test_usb_reset.py covers the executor, the awaited reset and the import.
+  inject-websession:
+    status: exempt
+    comment: The integration talks to the CUL over a serial port and makes no HTTP requests.
+  strict-typing:
+    status: done
+    comment: CI runs mypy with the component settings of Home Assistant, including explicit-override. serialx and usb-devices ship py.typed.

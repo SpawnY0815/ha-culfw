@@ -1,0 +1,64 @@
+{
+  "entity": {
+    "button": {
+      "refresh_schedule": {
+        "default": "mdi:calendar-sync"
+      },
+      "refresh_settings": {
+        "default": "mdi:refresh"
+      },
+      "sync_time": {
+        "default": "mdi:clock-check-outline"
+      }
+    },
+    "calendar": {
+      "heating_program": {
+        "default": "mdi:calendar-clock"
+      }
+    },
+    "sensor": {
+      "actuator_state": {
+        "default": "mdi:radiator",
+        "state": {
+          "regulating": "mdi:valve",
+          "sync_now": "mdi:sync",
+          "off": "mdi:radiator-off",
+          "offset": "mdi:tune",
+          "lime_protection": "mdi:autorenew",
+          "sync_time": "mdi:clock-outline",
+          "test": "mdi:bell-ring-outline",
+          "pair": "mdi:link-variant"
+        }
+      },
+      "eob_count": {
+        "default": "mdi:alert-circle-outline"
+      },
+      "lovf_count": {
+        "default": "mdi:clock-alert-outline"
+      },
+      "valve": {
+        "default": "mdi:valve"
+      },
+      "week_program_status": {
+        "default": "mdi:calendar-week",
+        "state": {
+          "unknown": "mdi:calendar-question",
+          "partial": "mdi:calendar-range-outline",
+          "complete": "mdi:calendar-check-outline",
+          "writing": "mdi:calendar-edit"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_holiday": {
+      "service": "mdi:beach"
+    },
+    "get_schedule": {
+      "service": "mdi:calendar-search"
+    },
+    "set_schedule": {
+      "service": "mdi:calendar-edit"
+    }
+  }
+}

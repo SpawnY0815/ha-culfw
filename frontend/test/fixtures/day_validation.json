@@ -1,0 +1,154 @@
+[
+  { "name": "empty day", "ranges": [], "error": null },
+  { "name": "one period", "ranges": [{ "start": "06:00", "end": "08:30" }], "error": null },
+  {
+    "name": "two periods",
+    "ranges": [
+      { "start": "06:00", "end": "08:30" },
+      { "start": "17:00", "end": "22:00" }
+    ],
+    "error": null
+  },
+  {
+    "name": "periods in reverse order",
+    "ranges": [
+      { "start": "17:00", "end": "22:00" },
+      { "start": "06:00", "end": "08:30" }
+    ],
+    "error": null
+  },
+  {
+    "name": "touching periods",
+    "ranges": [
+      { "start": "06:00", "end": "08:00" },
+      { "start": "08:00", "end": "10:00" }
+    ],
+    "error": null
+  },
+  { "name": "whole day", "ranges": [{ "start": "00:00", "end": "24:00" }], "error": null },
+  { "name": "single digit hour", "ranges": [{ "start": "6:30", "end": "7:00" }], "error": null },
+  { "name": "zero seconds", "ranges": [{ "start": "06:00:00", "end": "07:00:00" }], "error": null },
+  { "name": "padded text", "ranges": [{ "start": " 06:00 ", "end": "07:00" }], "error": null },
+  {
+    "name": "three periods",
+    "ranges": [
+      { "start": "01:00", "end": "02:00" },
+      { "start": "03:00", "end": "04:00" },
+      { "start": "05:00", "end": "06:00" }
+    ],
+    "error": "schedule_too_many_ranges"
+  },
+  {
+    "name": "too many periods with bad time",
+    "ranges": [
+      { "start": "xx", "end": "02:00" },
+      { "start": "03:00", "end": "04:00" },
+      { "start": "05:00", "end": "06:00" }
+    ],
+    "error": "schedule_too_many_ranges"
+  },
+  {
+    "name": "not a time",
+    "ranges": [{ "start": "soon", "end": "07:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "missing minutes",
+    "ranges": [{ "start": "7", "end": "08:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "short minutes",
+    "ranges": [{ "start": "7:3", "end": "08:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "hour 25",
+    "ranges": [{ "start": "06:00", "end": "25:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "past the end of the day",
+    "ranges": [{ "start": "06:00", "end": "24:10" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "minute 60",
+    "ranges": [{ "start": "06:60", "end": "08:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "seconds",
+    "ranges": [{ "start": "06:00:30", "end": "07:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "empty text",
+    "ranges": [{ "start": "", "end": "07:00" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "start off the step",
+    "ranges": [{ "start": "06:05", "end": "07:00" }],
+    "error": "schedule_time_step"
+  },
+  {
+    "name": "end off the step",
+    "ranges": [{ "start": "06:00", "end": "07:15" }],
+    "error": "schedule_time_step"
+  },
+  {
+    "name": "step error before invalid end",
+    "ranges": [{ "start": "06:05", "end": "soon" }],
+    "error": "schedule_time_step"
+  },
+  {
+    "name": "invalid start before step error of the end",
+    "ranges": [{ "start": "soon", "end": "06:05" }],
+    "error": "schedule_time_invalid"
+  },
+  {
+    "name": "step error before backwards",
+    "ranges": [{ "start": "08:00", "end": "07:05" }],
+    "error": "schedule_time_step"
+  },
+  {
+    "name": "backwards",
+    "ranges": [{ "start": "08:00", "end": "07:00" }],
+    "error": "schedule_range_backwards"
+  },
+  {
+    "name": "zero length",
+    "ranges": [{ "start": "08:00", "end": "08:00" }],
+    "error": "schedule_range_backwards"
+  },
+  {
+    "name": "midnight as end",
+    "ranges": [{ "start": "22:00", "end": "00:00" }],
+    "error": "schedule_range_backwards"
+  },
+  {
+    "name": "overlap",
+    "ranges": [
+      { "start": "06:00", "end": "09:00" },
+      { "start": "08:00", "end": "10:00" }
+    ],
+    "error": "schedule_ranges_overlap"
+  },
+  {
+    "name": "overlap in reverse order",
+    "ranges": [
+      { "start": "08:00", "end": "10:00" },
+      { "start": "06:00", "end": "09:00" }
+    ],
+    "error": "schedule_ranges_overlap"
+  },
+  {
+    "name": "contained",
+    "ranges": [
+      { "start": "06:00", "end": "12:00" },
+      { "start": "07:00", "end": "08:00" }
+    ],
+    "error": "schedule_ranges_overlap"
+  }
+]

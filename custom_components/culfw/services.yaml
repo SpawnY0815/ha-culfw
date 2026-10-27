@@ -1,0 +1,188 @@
+set_holiday:
+  target:
+    entity:
+      integration: culfw
+      domain: climate
+  fields:
+    until:
+      required: true
+      example: "2026-12-27 00:00:00"
+      selector:
+        datetime:
+    temperature:
+      required: true
+      example: 16
+      selector:
+        number:
+          min: 6
+          max: 30
+          step: 0.5
+          unit_of_measurement: "°C"
+
+get_schedule:
+  target:
+    entity:
+      integration: culfw
+      domain: climate
+
+set_schedule:
+  target:
+    entity:
+      integration: culfw
+      domain: climate
+  fields:
+    monday:
+      required: false
+      example: |
+        - start: "06:00"
+          end: "08:30"
+        - start: "17:00"
+          end: "22:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    tuesday:
+      required: false
+      example: |
+        - start: "06:00"
+          end: "08:30"
+        - start: "17:00"
+          end: "22:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    wednesday:
+      required: false
+      example: |
+        - start: "06:00"
+          end: "08:30"
+        - start: "17:00"
+          end: "22:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    thursday:
+      required: false
+      example: |
+        - start: "06:00"
+          end: "08:30"
+        - start: "17:00"
+          end: "22:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    friday:
+      required: false
+      example: |
+        - start: "06:00"
+          end: "08:30"
+        - start: "17:00"
+          end: "22:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    saturday:
+      required: false
+      example: |
+        - start: "06:30"
+          end: "24:00"
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
+    sunday:
+      required: false
+      example: []
+      selector:
+        object:
+          multiple: true
+          label_field: start
+          description_field: end
+          fields:
+            start:
+              label: Start
+              required: true
+              selector:
+                text:
+            end:
+              label: End
+              required: true
+              selector:
+                text:
