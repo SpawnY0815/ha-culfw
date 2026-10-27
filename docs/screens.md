@@ -40,8 +40,7 @@ Step `user`. The first screen when the user adds the integration without a disco
 │     [ Select a serial port ▾ ]                                     │
 │     The port of the CUL. A path such as /dev/ttyACM0 is stored as  │
 │     its stable path under /dev/serial/by-id/ when the host has     │
-│     one. If another program such as FHEM uses the CUL, stop it     │
-│     first.                                                         │
+│     one. If another program uses the CUL, stop it first.           │
 │                                                                    │
 │                                                           [ Next ] │
 └────────────────────────────────────────────────────────────────────┘
@@ -73,9 +72,9 @@ Step `house_code`. Both ways lead here after the CUL was read. The user enters t
 │ Central code                                                       │
 ├────────────────────────────────────────────────────────────────────┤
 │ The central code is the code of the CUL, the central of your FHT   │
-│ system. FHEM calls it FHTID, and this documentation also calls it  │
-│ the house code. The CUL currently holds 016 052 (hex 1034).        │
-│ Thermostats that work with FHEM keep working with the same code.   │
+│ system. This documentation also calls it the house code. The CUL   │
+│ currently holds 016 052 (hex 1034). Thermostats that are           │
+│ registered with the CUL keep working with the same code.           │
 │                                                                    │
 │ New setup: choose any code and release every FHT80b for            │
 │ registration. Hold PROG until Sond shows, select CEnt, press PROG, │
@@ -237,7 +236,7 @@ Every error appears in red above the buttons of the screen that caused it. The f
 
 - `cannot_connect`: Failed to connect to the serial port. Check that the CUL is plugged in and that Home Assistant is allowed to use the port.
 - `port_missing`: The serial port does not exist. Check that the CUL is plugged in and select its port again.
-- `port_in_use`: Another program is using the serial port. Stop that program, for example FHEM, and try again.
+- `port_in_use`: Another program is using the serial port. Stop that program and try again.
 - `permission_denied`: Home Assistant is not allowed to open the serial port. Give the user that runs Home Assistant access to the port, for example by adding it to the dialout group.
 - `no_answer`: The device does not answer. Check that it is a CUL with culfw.
 - `not_culfw`: The device does not answer like a CUL with culfw. Check that you selected the right serial port.

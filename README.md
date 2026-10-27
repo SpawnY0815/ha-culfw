@@ -1,8 +1,10 @@
 # culfw (CUL)
 
-The culfw integration connects the ELV FHT80b room thermostats and FHT80 TF window contacts to Home Assistant. It talks to a [busware CUL868](https://www.busware.de/) stick that runs [culfw](http://culfw.de/) over a serial port, so no FHEM instance is needed. The thermostats and window contacts are made by [ELV](https://www.elv.com/).
+The culfw integration connects ELV FHT80b room thermostats and FHT80 TF window contacts to Home Assistant. Home Assistant talks over a serial port to a [busware CUL868](https://www.busware.de/), a USB radio stick that runs the open source firmware [culfw](http://culfw.de/), and the stick talks to the devices on 868 MHz. Nothing else is needed: no other software, no gateway and no cloud. The thermostats and window contacts are made by [ELV](https://www.elv.com/).
 
-The integration has no cloud part. It listens to the radio telegrams that the devices send on their own, and it sends commands to a thermostat through the stick, in the time slot in which the thermostat listens.
+The integration listens to the radio telegrams that the devices send on their own, and it sends commands to a thermostat through the stick, in the time slot in which the thermostat listens.
+
+The FHT devices are old, and they have not been sold for many years. But many of them still work, and as long as they do, it is more sustainable to keep using them than to throw them away and buy new ones. This integration keeps working thermostats and window contacts in use with a current Home Assistant.
 
 Use cases:
 
@@ -10,17 +12,17 @@ Use cases:
 - Control a thermostat from Home Assistant: set the temperature and the mode, pick a preset, start a holiday, read and write the week program, and see it in a calendar.
 - Switch off or lower the heating when a window is open, and get a message when a battery is low or a device has gone silent.
 - Keep the clocks of the thermostats right: the integration sends the date and the time every night.
-- Replace FHEM as the central of the FHT system. The thermostats stay registered when you use the same central code.
+- Take over an existing FHT system. Thermostats that are registered with the CUL keep working when you keep the central code that the stick stores.
 
-The integration is under development. It was tested against a simulator of the stick and a recording of the radio traffic of a real FHEM installation. It also ran on a real busware CUL868 in a house with five known FHT80b thermostats and eight FHT80 TF contacts. The first tests on the real stick were on 2026-10-18 and 2026-10-19, where it read and wrote values, the week program, holidays and presets. [Known limitations](#known-limitations) lists what is not verified yet.
+The integration was tested against a simulator of the stick and a recording of the radio traffic of a real installation. It runs on a real busware CUL868 in a house with five known FHT80b thermostats and eight FHT80 TF contacts. The first tests on the real stick were on 2026-10-18 and 2026-10-19, where it read and wrote values, the week program, holidays and presets. [Known limitations](#known-limitations) lists what is not verified yet.
 
-The integration is licensed under the Apache License 2.0, the license of Home Assistant itself. This repository is private, and the integration is not part of HACS. See [Installation](#installation).
+The integration is licensed under the Apache License 2.0, the license of Home Assistant itself. It is not in the default catalog of HACS yet, see [Installation](#installation).
 
 ## The radio system behind it
 
 FHT is part of the 868 MHz radio system that ELV sold together with the FS20 switches and the HMS sensors. In that system a central controls the devices: the FHZ 1000 PC and the FHZ 2000 were such centrals. Conrad Electronic sold the same devices under its own name. Each FHT80b is registered with one central, and it only talks to that central (see the special function `CEnt` in the manual of the thermostat).
 
-The busware CUL868 takes the role of the central. It is a USB stick with a CC1101 radio chip and an ATmega32U4 microcontroller that runs the open source firmware culfw. busware describes the firmware as a decoder for the 868 MHz traffic of FS20, FHT, EM, KS and HMS devices, and FHEM has used the same stick for the same job for years. This integration speaks the culfw commands to the stick directly and does not need FHEM.
+The busware CUL868 takes the role of the central. It is a USB stick with a CC1101 radio chip and an ATmega32U4 microcontroller that runs the open source firmware culfw. busware describes the firmware as a decoder for the 868 MHz traffic of FS20, FHT, EM, KS and HMS devices. This integration speaks the culfw commands to the stick directly.
 
 ELV, Conrad, eQ-3 and busware are not affiliated with this project. Their names only say which devices the integration works with.
 
@@ -28,7 +30,7 @@ Sources: [ELV FHT 80B data sheet](https://media.elv.com/file/62489_fht_80b.pdf),
 
 ## Why this exists and who it is for
 
-The system is old. It has probably few active users today, but the devices have kept running reliably in the installation of the author for many years. There is no reason to throw working devices away and buy new ones, and this integration is meant to keep them in use: reusing the hardware that already exists is better for the environment than replacing it, and it keeps the heating of the house under local control.
+The system is old and has probably few active users today, but the devices have kept running reliably in the installation of the author for many years. A thermostat that still controls its radiator does not need to be replaced: building a new one costs material and energy, and the old one becomes waste. This integration lets such devices stay in use for as long as they work, under local control and without a cloud.
 
 So far the integration covers only the devices that the author owns: five FHT80b room thermostats, eight FHT80 TF window contacts and one busware CUL868. The author has no other devices. If you have other ELV devices of this radio system, for example other thermostat or contact variants, adding them is probably not a lot of work. Open an issue in the repository and describe the device, and a recording of its radio telegrams helps. The author can test only what is at home.
 
@@ -54,8 +56,8 @@ One CUL is supported per Home Assistant.
 ## Prerequisites
 
 1. A CUL868 with culfw 1.66, plugged into the host of Home Assistant. If Home Assistant runs in a virtual machine, pass the stick through to it by vendor and product ID (`03eb:204b`), not by USB port, so that the stick finds its way back after it re-enumerates.
-2. No other program may hold the serial port. Stop FHEM, or remove its CUL definition, before you set up the integration.
-3. The central code of the CUL. The CUL is the central of your FHT system, and the thermostats register with it. FHEM calls this code FHTID, and this documentation also calls it the house code. If FHEM was your central, use the code that FHEM wrote to the stick, and the thermostats keep working. For a new setup you can choose any code. The setup form suggests the code that the stick stores, and a different code is written to the stick after you confirm it, which clears its FHT buffers. The central code is not the security code (`CodE`) of a thermostat, see [Central code and security code](#central-code-and-security-code).
+2. No other program may hold the serial port. Stop every other software that uses the CUL before you set up the integration.
+3. The central code of the CUL. The CUL is the central of your FHT system, and the thermostats register with it. This documentation also calls it the house code. If the thermostats are already registered with the CUL, keep the code that the stick stores, and they keep working. For a new setup you can choose any code. The setup form suggests the code that the stick stores, and a different code is written to the stick after you confirm it, which clears its FHT buffers. The central code is not the security code (`CodE`) of a thermostat, see [Central code and security code](#central-code-and-security-code).
 4. The user that runs Home Assistant has to be allowed to open the serial port (on Linux, usually the group `dialout`).
 
 ## Installation
@@ -93,14 +95,14 @@ Select **Reconfigure** in the menu of the integration to change the serial port 
 
 Two codes matter in an FHT system, and they are easy to mix up.
 
-- The **central code** belongs to the CUL, the central of the system. FHEM calls it `FHTID` of the CUL. It is two numbers from 1 to 99, stored as four hexadecimal digits (`016 052` is `1034`). You set it in the setup of the integration, and the integration shows it in the setup form, in the attributes `house_code_display` and `house_code` of the thermostats and the CUL, and as the serial number of the CUL device. The thermostat does not show it.
-- The **security code** (`CodE`) belongs to each thermostat. FHEM uses it in `define <name> FHT 3F48`. The display shows it as `Code 1` and `Code 2`, two numbers from 0 to 99 with three digits each (`063 072` is `3F48`). You set it on the thermostat. The integration shows it in the name of the device (**FHT80b 063 072**) and in the attribute `display_code`.
+- The **central code** belongs to the CUL, the central of the system. It is two numbers from 1 to 99, stored as four hexadecimal digits (`016 052` is `1034`). You set it in the setup of the integration, and the integration shows it in the setup form, in the attributes `house_code_display` and `house_code` of the thermostats and the CUL, and as the serial number of the CUL device. The thermostat does not show it.
+- The **security code** (`CodE`) belongs to each thermostat. The display shows it as `Code 1` and `Code 2`, two numbers from 0 to 99 with three digits each (`063 072` is `3F48`). You set it on the thermostat. The integration shows it in the name of the device (**FHT80b 063 072**) and in the attribute `display_code`.
 
 The thermostats register with the central, and the CUL addresses a thermostat by its security code. A thermostat works with one central only, the one it is registered with (chapter 3.9.9 of the manual of the FHT80b). To see or change the registration, use the special function `CEnt` of the thermostat:
 
 - Hold **PROG** until `Sond` shows, select `CEnt` with the wheel and press **PROG**. The display shows the state: `On` means the thermostat is registered with a central, `Off` means no radio communication, and `nA` means it is released for registration.
 - To register the thermostat with a central that has another code than before, which is the case in a new setup, choose `nA` with the wheel and confirm with **PROG**. The thermostat shows `On` once it is registered.
-- Thermostats that FHEM registered keep working when you enter the same central code in the setup.
+- Thermostats that are registered with the CUL keep working when you keep the central code that the stick stores.
 
 To read the security code of a thermostat, hold **PROG** until `Sond` shows, choose `CodE` with the wheel and confirm with **PROG**. The display shows `Code 1` with three digits, for example `063`. Confirm with **PROG** again and it shows `Code 2`, for example `072`. Do not change it for this integration. A new security code has to be transmitted to the valve actuators again (chapter 3.9.4 of the manual).
 
@@ -547,7 +549,7 @@ The integration fires these events on the Home Assistant event bus, and the logb
 - The status of a day of the week program (`unconfirmed` and `error`) lives in memory. A restart of Home Assistant forgets it, and the day then shows what the thermostat last reported. A command that was sent and not yet echoed survives the restart, as the others do. A write to a thermostat that echoes nothing is not refused by the circuit breaker, because the breaker only stops what the integration sends on its own, and the day ends as `unconfirmed`.
 - The 1 percent duty cycle of the radio limits how much the CUL may send, and the integration sends a message only when at least 3 seconds of the budget are left. The budget grows by 10 milliseconds per second, so an empty one needs 5 minutes to recover, and it stays low for much longer while a thermostat is busy, for example for about 25 minutes after its batteries were replaced. A thermostat counts down 2 minutes with its valves after a battery change (it sends a telegram every second), and the integration keeps its own messages (the nightly time sync and the reads) back until that is over, as a precaution, because it suspects that a message waiting in the buffer of the CUL costs budget during the countdown. A command that you send is never held for this, and it is not refused for a low budget either: it waits as pending and goes out as soon as the budget allows. A time message that waited gets the date and time of the moment it goes out. If the budget does not recover within 8 minutes, the command is dropped, the event `culfw_command_expired` is fired with the reason `credit_exhausted`, and you can send it again. What the integration sends on its own (the nightly time sync, the reads of settings and week program) needs 5 seconds of budget, so that 3 seconds stay for your commands, and is skipped while the budget is short and tried again later. The sensor **Duty cycle credit** shows the budget.
 - The thermostat tells its settings only on request. The values of the numbers can be old until the thermostat answered a request, and the week program can be up to a day old, or older while the option **Read week programs automatically** is off.
-- One CUL per Home Assistant, and only a manual installation. The integration cannot register a thermostat with the CUL. Release each thermostat for registration at the device (`CEnt`, `nA`), see [Central code and security code](#central-code-and-security-code).
+- One CUL per Home Assistant. The integration cannot register a thermostat with the CUL. Release each thermostat for registration at the device (`CEnt`, `nA`), see [Central code and security code](#central-code-and-security-code).
 - On (30.5 °C, the heating pause) and OFF (5.5 °C) hold the valve fully open or closed until you change them, also in manual mode. In auto mode the next switch time of the week program ends them. A thermostat on On keeps heating even when the room is warm. Home Assistant offers neither as a target temperature or preset, but a value that you set at the thermostat or with another central shows as it is. Set the temperature in auto mode only as a temporary override: it holds until the next switch time of the week program.
 - The integration does not pair a window contact with a thermostat, and it cannot read the pairing from the thermostat. The assignment in the options is a note for your overview, and a suggestion is a guess from the radio traffic that needs a contact that is actually opened. See [Window contacts and thermostats](#window-contacts-and-thermostats).
 - A thermostat that is dead is seen only because it stays silent. The integration notices it after the threshold in the options and raises a repair issue. It never removes a device by itself, because a battery device may skip a window for hours.
@@ -574,7 +576,7 @@ Home Assistant opens the port read-only to read the version and the central code
 #### Resolution
 
 1. Check that the CUL is plugged in. In a virtual machine, check that the machine gets the stick.
-2. Stop every other program that uses the port, for example FHEM.
+2. Stop every other program that uses the port.
 3. Add the user that runs Home Assistant to the group that owns the port, usually `dialout`.
 4. Select the port again, preferably the path under `/dev/serial/by-id/`.
 

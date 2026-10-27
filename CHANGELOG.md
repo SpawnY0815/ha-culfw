@@ -4,6 +4,10 @@ All notable changes to the culfw integration are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The README and the texts of the setup and the repairs describe the integration on its own: the busware CUL868, culfw and the FHT devices. The README also says why the integration exists: the devices are old, but as long as they work, keeping them in use is more sustainable than replacing them.
+
 ## [0.3.0] - 2026-10-27
 
 The first public release. The integration is named after culfw, the firmware of the busware sticks, because the FHT devices are the first protocol it supports and not necessarily the last one.
@@ -16,7 +20,7 @@ The first public release. The integration is named after culfw, the firmware of 
 
 ## [0.2.0] - 2026-10-21
 
-The first version that runs on a real busware CUL868 in a house with FHT80b thermostats and FHT80 TF window contacts. It was rebuilt to the conventions of Home Assistant 2026.10, with a setup that needs no knowledge of the radio protocol, and it replaces FHEM as the central of the FHT system. Version 0.1.0 was the development state with read-only entities and a first climate control and was never tagged. Version 0.2.0 was not published, and its code is part of 0.3.0.
+The first version that runs on a real busware CUL868 in a house with FHT80b thermostats and FHT80 TF window contacts. It was rebuilt to the conventions of Home Assistant 2026.10, with a setup that needs no knowledge of the radio protocol, and the CUL takes the role of the central of the FHT system. Version 0.1.0 was the development state with read-only entities and a first climate control and was never tagged. Version 0.2.0 was not published, and its code is part of 0.3.0.
 
 ### Added
 
@@ -53,7 +57,7 @@ The first version that runs on a real busware CUL868 in a house with FHT80b ther
   - The integration learns from the radio traffic which window contact belongs to which thermostat, shows the evidence behind a suggestion and lets you assign contacts in the options.
 - Diagnostics and documentation:
   - A diagnostics download with the transport, the counters, the devices, the queues and the send log. It hides the central code, the addresses of remote ports and secrets.
-  - A README in the structure of the Home Assistant integration pages, with screens of every flow, troubleshooting, a migration runbook from FHEM and a list of the binding decisions.
+  - A README in the structure of the Home Assistant integration pages, with screens of every flow, troubleshooting and a list of the binding decisions.
   - The quality scale file `quality_scale.yaml` with the status of every rule, checked against the source by the tests.
 - Development:
   - The protocol library `culfw` is free of Home Assistant, and a simulated CUL with simulated thermostats runs the tests with virtual time, including soak, fault injection and blocking call checks.

@@ -9,7 +9,7 @@
           "device": "Serial port"
         },
         "data_description": {
-          "device": "The port of the CUL. A path such as `/dev/ttyACM0` is stored as its stable path under `/dev/serial/by-id/` when the host has one. If another program such as FHEM uses the CUL, stop it first."
+          "device": "The port of the CUL. A path such as `/dev/ttyACM0` is stored as its stable path under `/dev/serial/by-id/` when the host has one. If another program uses the CUL, stop it first."
         }
       },
       "usb_confirm": {
@@ -18,7 +18,7 @@
       },
       "house_code": {
         "title": "Central code",
-        "description": "The **central code** is the code of the CUL, the central of your FHT system. FHEM calls it FHTID, and this documentation also calls it the house code. The CUL currently holds `{current}`. Thermostats that work with FHEM keep working with the same code.\n\n**New setup:** choose any code and release every FHT80b for registration. Hold **PROG** until `Sond` shows, select `CEnt`, press **PROG**, choose `nA` and confirm with **PROG**. It then shows `On`.\n\nThe **security code** (`CodE`) of a thermostat is a different code that you do not change here. To read it, hold **PROG** until `Sond` shows, choose `CodE` with the wheel and confirm with **PROG**. The display shows `Code 1` with three digits, for example `063`. Confirm again and it shows `Code 2`, for example `072`.\n\nTo see or change the central code later, select **Reconfigure** under **Settings** > **Devices & services** > **culfw (CUL)**.",
+        "description": "The **central code** is the code of the CUL, the central of your FHT system. This documentation also calls it the house code. The CUL currently holds `{current}`. Thermostats that are registered with the CUL keep working with the same code.\n\n**New setup:** choose any code and release every FHT80b for registration. Hold **PROG** until `Sond` shows, select `CEnt`, press **PROG**, choose `nA` and confirm with **PROG**. It then shows `On`.\n\nThe **security code** (`CodE`) of a thermostat is a different code that you do not change here. To read it, hold **PROG** until `Sond` shows, choose `CodE` with the wheel and confirm with **PROG**. The display shows `Code 1` with three digits, for example `063`. Confirm again and it shows `Code 2`, for example `072`.\n\nTo see or change the central code later, select **Reconfigure** under **Settings** > **Devices & services** > **culfw (CUL)**.",
         "data": {
           "first_pair": "Central code, first number",
           "second_pair": "Central code, second number"
@@ -72,7 +72,7 @@
     "error": {
       "cannot_connect": "Failed to connect to the serial port. Check that the CUL is plugged in and that Home Assistant is allowed to use the port.",
       "port_missing": "The serial port does not exist. Check that the CUL is plugged in and select its port again.",
-      "port_in_use": "Another program is using the serial port. Stop that program, for example FHEM, and try again.",
+      "port_in_use": "Another program is using the serial port. Stop that program and try again.",
       "permission_denied": "Home Assistant is not allowed to open the serial port. Give the user that runs Home Assistant access to the port, for example by adding it to the `dialout` group.",
       "no_answer": "The device does not answer. Check that it is a CUL with culfw.",
       "not_culfw": "The device does not answer like a CUL with culfw. Check that you selected the right serial port.",
@@ -158,7 +158,7 @@
     "cul_unreachable": {
       "title": "The CUL is not reachable",
       "short_title": "CUL not reachable",
-      "description": "Home Assistant has not been able to talk to the CUL on `{port}` for {minutes} minutes. No FHT telegrams arrive and no commands go out.\n\nThe CUL is the radio stick that connects Home Assistant to the thermostats and window contacts. Until it is back, all FHT devices are unavailable, and the issues about silent devices are hidden because the outage explains them.\n\nTo fix this:\n\n1. Check that the stick is plugged in. If Home Assistant runs in a virtual machine, check that the machine gets the stick.\n2. Check that no other program, such as FHEM, holds `{port}`.\n3. Unplug the stick and plug it in again.\n\nThe integration keeps reconnecting by itself. When the CUL answers again, this issue disappears and the FHT devices become available."
+      "description": "Home Assistant has not been able to talk to the CUL on `{port}` for {minutes} minutes. No FHT telegrams arrive and no commands go out.\n\nThe CUL is the radio stick that connects Home Assistant to the thermostats and window contacts. Until it is back, all FHT devices are unavailable, and the issues about silent devices are hidden because the outage explains them.\n\nTo fix this:\n\n1. Check that the stick is plugged in. If Home Assistant runs in a virtual machine, check that the machine gets the stick.\n2. Check that no other program holds `{port}`.\n3. Unplug the stick and plug it in again.\n\nThe integration keeps reconnecting by itself. When the CUL answers again, this issue disappears and the FHT devices become available."
     },
     "watchdog_exhausted": {
       "title": "The CUL stays silent",
@@ -270,7 +270,7 @@
       "message": "The serial port {port} does not exist. Plug in the CUL or reconfigure the integration with the right port. Home Assistant tries again automatically."
     },
     "cul_busy": {
-      "message": "Another program is using the serial port {port}. Stop that program, for example FHEM. Home Assistant tries again automatically."
+      "message": "Another program is using the serial port {port}. Stop that program. Home Assistant tries again automatically."
     },
     "cul_permission": {
       "message": "Home Assistant is not allowed to open the serial port {port}. Give the user that runs Home Assistant access to the port. Home Assistant tries again automatically."

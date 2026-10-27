@@ -9,7 +9,7 @@
           "device": "Serieller Port"
         },
         "data_description": {
-          "device": "Der Port des CUL. Ein Pfad wie `/dev/ttyACM0` wird als stabiler Pfad unter `/dev/serial/by-id/` gespeichert, wenn der Host einen hat. Nutzt ein anderes Programm wie FHEM den CUL, beende es zuerst."
+          "device": "Der Port des CUL. Ein Pfad wie `/dev/ttyACM0` wird als stabiler Pfad unter `/dev/serial/by-id/` gespeichert, wenn der Host einen hat. Nutzt ein anderes Programm den CUL, beende es zuerst."
         }
       },
       "usb_confirm": {
@@ -18,7 +18,7 @@
       },
       "house_code": {
         "title": "Zentralencode",
-        "description": "Der **Zentralencode** ist der Code des CUL, der Zentrale deines FHT-Systems. FHEM nennt ihn FHTID, und die Dokumentation dieser Integration nennt ihn auch Hauscode. Im CUL steht gerade `{current}`. Thermostate, die mit FHEM laufen, funktionieren mit demselben Code weiter.\n\n**Neueinrichtung:** Wähle einen beliebigen Code und gib jeden FHT80b zur Anmeldung frei. **PROG** gedrückt halten, bis `Sond` erscheint, `CEnt` wählen, **PROG** drücken, `nA` wählen und mit **PROG** bestätigen. Das Thermostat zeigt `On`, sobald es angemeldet ist.\n\nDer **Sicherheitscode** (`CodE`) eines Thermostats ist ein anderer Code, den du hier nicht änderst. Zum Ablesen hältst du **PROG** gedrückt, bis `Sond` erscheint, wählst mit dem Rad `CodE` und bestätigst mit **PROG**. Das Display zeigt `Code 1` mit drei Ziffern, zum Beispiel `063`. Bestätige erneut, dann zeigt es `Code 2`, zum Beispiel `072`.\n\nUm den Zentralencode später zu sehen oder zu ändern, wähle **Neu konfigurieren** unter **Einstellungen** > **Geräte & Dienste** > **culfw**.",
+        "description": "Der **Zentralencode** ist der Code des CUL, der Zentrale deines FHT-Systems. Die Dokumentation dieser Integration nennt ihn auch Hauscode. Im CUL steht gerade `{current}`. Thermostate, die am CUL angemeldet sind, funktionieren mit demselben Code weiter.\n\n**Neueinrichtung:** Wähle einen beliebigen Code und gib jeden FHT80b zur Anmeldung frei. **PROG** gedrückt halten, bis `Sond` erscheint, `CEnt` wählen, **PROG** drücken, `nA` wählen und mit **PROG** bestätigen. Das Thermostat zeigt `On`, sobald es angemeldet ist.\n\nDer **Sicherheitscode** (`CodE`) eines Thermostats ist ein anderer Code, den du hier nicht änderst. Zum Ablesen hältst du **PROG** gedrückt, bis `Sond` erscheint, wählst mit dem Rad `CodE` und bestätigst mit **PROG**. Das Display zeigt `Code 1` mit drei Ziffern, zum Beispiel `063`. Bestätige erneut, dann zeigt es `Code 2`, zum Beispiel `072`.\n\nUm den Zentralencode später zu sehen oder zu ändern, wähle **Neu konfigurieren** unter **Einstellungen** > **Geräte & Dienste** > **culfw**.",
         "data": {
           "first_pair": "Zentralencode, erste Zahl",
           "second_pair": "Zentralencode, zweite Zahl"
@@ -72,7 +72,7 @@
     "error": {
       "cannot_connect": "Die Verbindung zum seriellen Port ist fehlgeschlagen. Prüfe, ob der CUL eingesteckt ist und ob Home Assistant den Port verwenden darf.",
       "port_missing": "Der serielle Port existiert nicht. Prüfe, ob der CUL eingesteckt ist, und wähle seinen Port erneut aus.",
-      "port_in_use": "Ein anderes Programm verwendet den seriellen Port. Beende es, zum Beispiel FHEM, und versuche es erneut.",
+      "port_in_use": "Ein anderes Programm verwendet den seriellen Port. Beende es und versuche es erneut.",
       "permission_denied": "Home Assistant darf den seriellen Port nicht öffnen. Gib dem Benutzer, unter dem Home Assistant läuft, Zugriff auf den Port, zum Beispiel indem du ihn zur Gruppe `dialout` hinzufügst.",
       "no_answer": "Das Gerät antwortet nicht. Prüfe, ob es ein CUL mit culfw ist.",
       "not_culfw": "Das Gerät antwortet nicht wie ein CUL mit culfw. Prüfe, ob du den richtigen seriellen Port gewählt hast.",
@@ -158,7 +158,7 @@
     "cul_unreachable": {
       "title": "Der CUL ist nicht erreichbar",
       "short_title": "CUL nicht erreichbar",
-      "description": "Home Assistant kann den CUL an `{port}` seit {minutes} Minuten nicht erreichen. Es kommen keine FHT-Telegramme an und es gehen keine Befehle hinaus.\n\nDer CUL ist der Funkstick, der Home Assistant mit den Thermostaten und Fensterkontakten verbindet. Bis er wieder da ist, sind alle FHT-Geräte nicht verfügbar, und die Meldungen über stumme Geräte sind ausgeblendet, weil der Ausfall sie erklärt.\n\nSo behebst du das:\n\n1. Prüfe, ob der Stick steckt. Läuft Home Assistant in einer virtuellen Maschine, prüfe, ob die Maschine den Stick bekommt.\n2. Prüfe, dass kein anderes Programm, etwa FHEM, `{port}` belegt.\n3. Ziehe den Stick ab und stecke ihn wieder ein.\n\nDie Integration verbindet sich von selbst immer wieder neu. Sobald der CUL wieder antwortet, verschwindet diese Meldung und die FHT-Geräte sind wieder verfügbar."
+      "description": "Home Assistant kann den CUL an `{port}` seit {minutes} Minuten nicht erreichen. Es kommen keine FHT-Telegramme an und es gehen keine Befehle hinaus.\n\nDer CUL ist der Funkstick, der Home Assistant mit den Thermostaten und Fensterkontakten verbindet. Bis er wieder da ist, sind alle FHT-Geräte nicht verfügbar, und die Meldungen über stumme Geräte sind ausgeblendet, weil der Ausfall sie erklärt.\n\nSo behebst du das:\n\n1. Prüfe, ob der Stick steckt. Läuft Home Assistant in einer virtuellen Maschine, prüfe, ob die Maschine den Stick bekommt.\n2. Prüfe, dass kein anderes Programm `{port}` belegt.\n3. Ziehe den Stick ab und stecke ihn wieder ein.\n\nDie Integration verbindet sich von selbst immer wieder neu. Sobald der CUL wieder antwortet, verschwindet diese Meldung und die FHT-Geräte sind wieder verfügbar."
     },
     "watchdog_exhausted": {
       "title": "Der CUL bleibt stumm",
@@ -270,7 +270,7 @@
       "message": "Der serielle Port {port} existiert nicht. Stecke den CUL ein oder konfiguriere die Integration mit dem richtigen Port neu. Home Assistant versucht es automatisch erneut."
     },
     "cul_busy": {
-      "message": "Ein anderes Programm verwendet den seriellen Port {port}. Beende dieses Programm, zum Beispiel FHEM. Home Assistant versucht es automatisch erneut."
+      "message": "Ein anderes Programm verwendet den seriellen Port {port}. Beende dieses Programm. Home Assistant versucht es automatisch erneut."
     },
     "cul_permission": {
       "message": "Home Assistant darf den seriellen Port {port} nicht öffnen. Gib dem Benutzer, unter dem Home Assistant läuft, Zugriff auf den Port. Home Assistant versucht es automatisch erneut."
