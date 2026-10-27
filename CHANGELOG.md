@@ -4,6 +4,10 @@ All notable changes to the culfw integration are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-27
+
+A release of texts only. Nothing changes in the behavior of the integration, and no action is needed after the update.
+
 ### Changed
 
 - The README and the texts of the setup and the repairs describe the integration on its own: the busware CUL868, culfw and the FHT devices. The README also says why the integration exists: the devices are old, but as long as they work, keeping them in use is more sustainable than replacing them.
@@ -90,6 +94,7 @@ The first version that runs on a real busware CUL868 in a house with FHT80b ther
 - The websocket commands of the card check the permission of the user for the entity, read for the state and control for a change.
 - Vite was updated to close the advisories of its `launch-editor` dependency in the development tools of the card.
 
-[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.1
 [0.3.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.0
