@@ -16,7 +16,7 @@ Use cases:
 
 The integration was tested against a simulator of the stick and a recording of the radio traffic of a real installation. It runs on a real busware CUL868 in a house with five known FHT80b thermostats and eight FHT80 TF contacts. The first tests on the real stick were on 2026-10-18 and 2026-10-19, where it read and wrote values, the week program, holidays and presets. [Known limitations](#known-limitations) lists what is not verified yet.
 
-The integration is licensed under the Apache License 2.0, the license of Home Assistant itself. It is not in the default catalog of HACS yet, see [Installation](#installation).
+The integration is licensed under the Apache License 2.0, the license of Home Assistant itself.
 
 ## The radio system behind it
 
@@ -62,7 +62,7 @@ One CUL is supported per Home Assistant.
 
 ## Installation
 
-The integration is not in the default catalog of HACS yet. Until it is, add it as a custom repository: in HACS open the menu, choose **Custom repositories**, enter `https://github.com/SpawnY0815/ha-culfw` with the type **Integration**, then install **culfw (CUL)** and restart Home Assistant.
+Search for **culfw (CUL)** in HACS, install it and restart Home Assistant.
 
 To install it by hand, copy the folder `custom_components/culfw` of the [release](https://github.com/SpawnY0815/ha-culfw/releases) you want to the `custom_components` folder of your Home Assistant configuration and restart Home Assistant.
 

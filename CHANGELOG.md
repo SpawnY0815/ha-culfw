@@ -4,6 +4,10 @@ All notable changes to the culfw integration are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The integration is in the default catalog of HACS now, so the README describes the search there instead of a custom repository.
+
 ## [0.3.1] - 2026-10-27
 
 A release of texts only. Nothing changes in the behavior of the integration, and no action is needed after the update.

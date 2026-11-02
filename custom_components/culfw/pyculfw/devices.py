@@ -248,10 +248,11 @@ class FhtRoomController:
 
         After a battery change the controller announces the first valve (pair) and then
         counts down 120 seconds with a telegram every second (the status of the
-        countdown), which also happens when the user starts SYnC in its menu. It is back
-        to its normal pace with the first telegram that regulates the valve. A countdown
-        telegram says how many seconds are left, and a pair telegram says that the
-        whole countdown follows.
+        countdown), which also happens when the user starts SYnC in its menu. Pairing a
+        valve at the controller announces it as well, without a countdown. Either way
+        the controller is back to its normal pace with the first telegram that regulates
+        the valve. A countdown telegram says how many seconds are left, and a pair
+        telegram allows for the whole countdown, which may or may not follow.
         """
         if value.state is ActuatorState.SYNCTIME:
             left = max(value.synctime or 0, 0)
