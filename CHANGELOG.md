@@ -4,9 +4,14 @@ All notable changes to the culfw integration are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-03
+
+A release of texts only. Nothing changes in the behavior of the integration, and no action is needed after the update.
+
 ### Changed
 
-- The integration is in the default catalog of HACS now, so the README describes the search there instead of a custom repository.
+- The integration is in the default catalog of HACS now. The README describes how to find it there and no longer asks for a custom repository.
+- The protocol notes record what the radio showed on a real installation on 2026-10-30 and 2026-10-31: how a valve actuator is paired at its thermostat, the test and sync telegrams of the window contacts, the answer of a thermostat to an opened window, and what two bits of the actuator status follow.
 
 ## [0.3.1] - 2026-10-27
 
@@ -98,7 +103,8 @@ The first version that runs on a real busware CUL868 in a house with FHT80b ther
 - The websocket commands of the card check the permission of the user for the entity, read for the state and control for a change.
 - Vite was updated to close the advisories of its `launch-editor` dependency in the development tools of the card.
 
-[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.2
 [0.3.1]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.1
 [0.3.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.0
