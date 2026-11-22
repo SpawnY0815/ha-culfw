@@ -24,6 +24,7 @@ from .pyculfw import (
     FhtDevice,
     FhtRoomController,
     FhtSendError,
+    WatchdogEventKind,
     report1_command,
     report2_command,
 )
@@ -70,7 +71,12 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the button platform."""
-    async_add_entities([SyncTimeButton(entry, entry.runtime_data.timesync)])
+    async_add_entities(
+        [
+            SyncTimeButton(entry, entry.runtime_data.timesync),
+            ClearBufferButton(entry),
+        ]
+    )
 
     def _create(device: FhtDevice) -> list[Entity]:
         if not isinstance(device, FhtRoomController):
@@ -114,6 +120,43 @@ class SyncTimeButton(CulPushEntity, ButtonEntity):
                 translation_domain=DOMAIN,
                 translation_key="time_sync_failed",
                 translation_placeholders={"count": str(len(results))},
+            )
+
+
+class ClearBufferButton(CulPushEntity, ButtonEntity):
+    """Empty the FHT send buffer of the CUL, for messages that nobody collects.
+
+    A message for a controller that does not collect it stays in the buffer for ever,
+    and a full buffer stops every command. The purge drops the waiting messages of every
+    controller, and the commands in flight are retired as after an automatic purge.
+    """
+
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_translation_key = "clear_fht_buffer"
+
+    def __init__(self, entry: FhtCulConfigEntry) -> None:
+        """Initialize the button."""
+        super().__init__(entry, "clear_fht_buffer")
+        self._watchdog = entry.runtime_data.watchdog
+        self._transport = entry.runtime_data.transport
+
+    @property
+    @override
+    def available(self) -> bool:
+        """Return True while the CUL is connected."""
+        return self._transport.connected
+
+    @override
+    async def async_press(self) -> None:
+        """Purge the buffer; fail if the daily limit holds it back or the CUL fails."""
+        kind = await self._watchdog.clear_buffer()
+        if kind is WatchdogEventKind.SKIPPED:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="buffer_clear_limit"
+            )
+        if kind is WatchdogEventKind.FAILED:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="buffer_clear_failed"
             )
 
 

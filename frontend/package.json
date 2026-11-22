@@ -1,6 +1,6 @@
 {
   "name": "fht-schedule-card",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "description": "Week program card for the culfw integration",
   "license": "Apache-2.0",

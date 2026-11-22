@@ -153,7 +153,7 @@
     "fht_buffer_low": {
       "title": "Der FHT-Sendepuffer des CUL ist fast voll",
       "short_title": "Sendepuffer fast voll",
-      "description": "Im FHT-Sendepuffer des CUL sind nur noch {free} Byte frei.\n\nNachrichten für ein Thermostat warten in diesem Puffer, bis das Thermostat sie abholt. Nachrichten für ein Thermostat, das stumm bleibt, verlassen ihn nie. Ist der Puffer voll, verwirft der CUL neue Nachrichten, und Befehle und der Zeitabgleich erreichen kein Thermostat mehr.\n\nSo behebst du das:\n\n1. Suche nach Reparaturmeldungen über stumme Geräte und beseitige deren Ursache, meist schwache Batterien oder eine fehlende Funkverbindung.\n2. Trage Geräte, die endgültig weg sind oder einem Nachbarn gehören, in den Optionen der Integration unter **Ignorierte Geräte** ein.\n\nNachrichten, die schon warten, verlassen den Puffer, wenn ihr Thermostat sie abholt oder wenn die Integration den Puffer leert, was sie tut, sobald der CUL meldet, dass der Puffer voll ist. Diese Meldung verschwindet bei der ersten Abfrage des CUL danach, innerhalb weniger Minuten."
+      "description": "Im FHT-Sendepuffer des CUL sind nur noch {free} Bytes frei.\n\nNachrichten für ein Thermostat warten in diesem Puffer, bis das Thermostat sie in seinem Zeitfenster abholt. Nachrichten für ein Thermostat, das sie nicht abholt, verlassen ihn nie. Ist der Puffer voll, verwirft der CUL neue Nachrichten, und Befehle und der Zeitabgleich erreichen kein Thermostat mehr.\n\nSo behebst du das:\n\n1. Suche nach Reparaturmeldungen über Thermostate, die stumm sind oder keine Befehle abholen, und beseitige die Ursache.\n2. Trage Geräte, die endgültig weg sind oder einem Nachbarn gehören, in den Optionen der Integration unter **Ignorierte Geräte** ein.\n3. Um den Puffer sofort freizumachen, drücke am CUL-Gerät auf **FHT-Puffer leeren**. Das verwirft alle wartenden Nachrichten, für jedes Thermostat.\n\nWartende Nachrichten verlassen den Puffer, wenn ihr Thermostat sie abholt oder der Puffer geleert wird. Diese Meldung verschwindet bei der ersten Abfrage des CUL danach, innerhalb weniger Minuten."
     },
     "cul_unreachable": {
       "title": "Der CUL ist nicht erreichbar",
@@ -173,7 +173,12 @@
     "device_unresponsive": {
       "title": "{name} holt keine Befehle ab",
       "short_title": "Holt keine Befehle ab",
-      "description": "{name} hat die letzten Nachrichten der Integration nicht bestätigt.\n\nEin Thermostat bestätigt jeden Befehl, den es empfängt. Ohne diese Bestätigung kann die Integration nicht wissen, ob ihre Nachrichten ankommen, und sendet deshalb von sich aus nichts mehr an {name} (nächtlicher Zeitabgleich und Auslesen der Einstellungen), bis es wieder einen Befehl bestätigt. Deine eigenen Befehle gehen weiter hinaus.\n\nSo behebst du das:\n\n1. Prüfe, ob {name} funktionierende Batterien hat und in Reichweite des CUL ist.\n2. Prüfe, ob {name} beim Zentralencode angemeldet ist, den der CUL verwendet (`CEnt` zeigt am Thermostat `On`), und nicht bei einer anderen Zentrale.\n3. Stelle von Home Assistant aus eine Temperatur an {name} ein, um es erneut zu versuchen.\n\nDie Meldung verschwindet, sobald {name} einen Befehl bestätigt."
+      "description": "{name} hat die letzten Nachrichten der Integration nicht bestätigt.\n\nEin Thermostat bestätigt jeden Befehl, den es empfängt. Ohne diese Bestätigung kann die Integration nicht wissen, ob ihre Nachrichten ankommen, und sendet deshalb von sich aus nichts mehr an {name} (nächtlicher Zeitabgleich und Auslesen der Einstellungen), bis es wieder einen Befehl bestätigt. Deine eigenen Befehle gehen weiter hinaus. Ein Thermostat, das nicht beim Zentralencode des CUL angemeldet ist, regelt sein Ventil weiter und scheint deshalb zu funktionieren.\n\nSo behebst du das:\n\n1. Prüfe, ob {name} beim Zentralencode des CUL angemeldet ist: halte PROG gedrückt, bis `Sond` erscheint, wähle `CEnt` und drücke PROG. Zeigt es nicht `On`, wähle `nA` und bestätige mit PROG, damit es sich wieder beim CUL anmeldet.\n2. Prüfe, ob {name} funktionierende Batterien hat und in Reichweite des CUL ist.\n3. Stelle von Home Assistant aus eine Temperatur an {name} ein, um es erneut zu versuchen.\n\nDie Meldung verschwindet, sobald {name} einen Befehl bestätigt."
+    },
+    "fht_buffer_low_stranded": {
+      "title": "Der FHT-Sendepuffer des CUL ist fast voll",
+      "short_title": "Sendepuffer fast voll",
+      "description": "Im FHT-Sendepuffer des CUL sind nur noch {free} Bytes frei, und darin warten Nachrichten für {names}, weil für sie keine Bestätigung kam.\n\nEin Thermostat holt seine Nachrichten in seinem Zeitfenster ab und bestätigt jeden Befehl, den es empfängt. Ein Thermostat, das nicht beim Zentralencode des CUL angemeldet ist, holt nichts ab, regelt aber sein Ventil weiter und scheint deshalb zu funktionieren. Ist der Puffer voll, verwirft der CUL neue Nachrichten, und Befehle und der Zeitabgleich erreichen kein Thermostat mehr.\n\nSo behebst du das:\n\n1. An jedem dieser Thermostate: halte PROG gedrückt, bis `Sond` erscheint, wähle `CEnt` und drücke PROG. Zeigt es nicht `On`, wähle `nA` und bestätige mit PROG, damit es sich wieder beim CUL anmeldet.\n2. Prüfe, ob jedes davon funktionierende Batterien hat und in Reichweite des CUL ist.\n3. Um den Puffer sofort freizumachen, drücke am CUL-Gerät auf **FHT-Puffer leeren**. Das verwirft alle wartenden Nachrichten, für jedes Thermostat.\n\nDie wartenden Nachrichten verlassen den Puffer, wenn ihr Thermostat sie abholt oder der Puffer geleert wird. Diese Meldung verschwindet bei der ersten Abfrage des CUL danach, innerhalb weniger Minuten."
     }
   },
   "entity": {
@@ -243,6 +248,9 @@
       },
       "refresh_schedule": {
         "name": "Wochenprogramm abrufen"
+      },
+      "clear_fht_buffer": {
+        "name": "FHT-Puffer leeren"
       }
     },
     "calendar": {
@@ -315,7 +323,7 @@
       "message": "Das 1-%-Sendebudget des CUL lag {minutes} Minuten lang unter {minimum} ms, deshalb wurde der Befehl nicht gesendet. Versuche es in ein paar Minuten erneut."
     },
     "send_buffer_full": {
-      "message": "Im FHT-Puffer des CUL sind {free} Bytes frei, der Befehl braucht aber {needed} Bytes plus {reserve} Bytes Reserve. Versuche es erneut, nachdem die Thermostate die wartenden Befehle abgeholt haben."
+      "message": "Im FHT-Puffer des CUL sind {free} Bytes frei, der Befehl braucht aber {needed} Bytes plus {reserve} Bytes Reserve. Versuche es erneut, nachdem die Thermostate die wartenden Befehle abgeholt haben, oder drücke am CUL-Gerät auf FHT-Puffer leeren."
     },
     "send_not_queued": {
       "message": "Der CUL hat die {count} Befehle nicht angenommen, weil sein FHT-Puffer übergelaufen ist (culfw hat `EOB` ausgegeben). Versuche es in ein paar Minuten erneut."
@@ -376,6 +384,12 @@
     },
     "schedule_ranges_overlap": {
       "message": "{day}: Die Bereiche von {first_start} bis {first_end} und von {second_start} bis {second_end} überlappen sich."
+    },
+    "buffer_clear_limit": {
+      "message": "Der FHT-Puffer wurde nicht geleert, weil er in den letzten 24 Stunden zu oft geleert wurde. Jedes Leeren schreibt in den Speicher des CUL, deshalb ist die Anzahl begrenzt. Versuche es später erneut."
+    },
+    "buffer_clear_failed": {
+      "message": "Der CUL hat den Befehl zum Leeren des FHT-Puffers nicht angenommen. Der Grund steht im Protokoll von Home Assistant."
     }
   },
   "services": {

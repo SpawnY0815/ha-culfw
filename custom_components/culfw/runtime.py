@@ -734,7 +734,7 @@ class FhtCulRuntime:
             self.issues.async_cul_status(None)
             return
         status = self.cul.data
-        self.issues.async_cul_status(status)
+        self.issues.async_cul_status(status, self.outbox.stranded())
         uptime = dt_util.utcnow() - status.booted_at
         previous, self._uptime = self._uptime, uptime
         self.network.cul_booted_at = status.booted_at

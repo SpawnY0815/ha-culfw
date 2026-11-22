@@ -72,6 +72,7 @@ class WatchdogReason(StrEnum):
     CUL_ANSWERS = "cul_answers"
     BUFFER_OK = "buffer_ok"
     PURGE_LIMIT = "purge_limit"
+    USER_REQUEST = "user_request"
     CONNECTION_CHANGED = "connection_changed"
     DISABLED = "disabled"
     NOT_CONFIGURED = "not_configured"
@@ -424,7 +425,8 @@ class CulWatchdog:
                 f"{free} bytes free",
             )
             return False
-        return await self._clear_buffer(WatchdogReason.BUFFER_CRITICAL, free)
+        kind = await self._clear_buffer(WatchdogReason.BUFFER_CRITICAL, free)
+        return kind is not WatchdogEventKind.SKIPPED
 
     async def _clear_after_eob(self) -> None:
         now = time.monotonic()
@@ -458,10 +460,26 @@ class CulWatchdog:
             return
         await self._clear_buffer(WatchdogReason.EOB, free)
 
+    async def clear_buffer(self) -> WatchdogEventKind:
+        """Purge the FHT buffer because the user asked for it; return how it ended.
+
+        The purge drops the queued messages of every controller and rewrites two bytes
+        of the EEPROM, so the cap of the automatic purges applies here as well. The
+        result is SKIPPED when the cap holds the purge back, FAILED when the CUL did not
+        take the line, and SUCCEEDED otherwise. The event of the step reaches the owner
+        as for an automatic purge, so it retires the commands in flight the same way.
+        """
+        try:
+            free: int | None = await self._transport.get_fht_buffer_free()
+        except CulError as err:
+            _LOGGER.debug("Cannot read the FHT buffer before the purge: %s", err)
+            free = None
+        return await self._clear_buffer(WatchdogReason.USER_REQUEST, free)
+
     async def _clear_buffer(
         self, reason: WatchdogReason, free_before: int | None
-    ) -> bool:
-        """Purge the FHT buffer unless the cap is reached; return True if it ran."""
+    ) -> WatchdogEventKind:
+        """Purge the FHT buffer unless the cap is reached; return the kind of the event."""
         step = WatchdogStep.CLEAR_BUFFER
         now = time.monotonic()
         while (
@@ -476,13 +494,13 @@ class CulWatchdog:
                 f"{len(self._purges)} purges in the last "
                 f"{self._config.purge_window_seconds / 3600:g} h",
             )
-            return False
+            return WatchdogEventKind.SKIPPED
         self._last_clear = now
         try:
             await self._transport.clear_fht_buffer()
         except CulError as err:
             self._emit(WatchdogEventKind.FAILED, reason, step, str(err))
-            return True
+            return WatchdogEventKind.FAILED
         self._purges.append(now)
         self._purge_count += 1
         try:
@@ -492,12 +510,12 @@ class CulWatchdog:
             self._emit(
                 WatchdogEventKind.SUCCEEDED, reason, step, f"buffer not read: {err}"
             )
-            return True
+            return WatchdogEventKind.SUCCEEDED
         before = "" if free_before is None else f"{free_before} -> "
         self._emit(
             WatchdogEventKind.SUCCEEDED, reason, step, f"{before}{free} bytes free"
         )
-        return True
+        return WatchdogEventKind.SUCCEEDED
 
     async def _reboot(self) -> bool:
         step = WatchdogStep.REBOOT

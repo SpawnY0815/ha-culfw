@@ -308,7 +308,7 @@ The first tests on a real busware CUL868 with culfw 1.66 ran on 2026-10-18 and 2
 | --- | --- | --- |
 | A controller echoes a command it took with the value it stored, and the entity stops being pending | `11_FHT.pm` | 2026-10-18: a command was pending for 40 to 120 seconds, then the echo arrived and `pending` turned false |
 | The status byte of an echo is 0x69, and the echoes of one message come in the order sent | `fht.c` | not yet, the first run measured the delay only |
-| A controller echoes a report request like any other command | `fht.c` | not yet, the answers to the requests were seen (below), the echo of the request itself was not checked |
+| A controller echoes a report request like any other command | `fht.c` | 2026-11-21: the send log of the production instance shows report requests with one command to 3924 and 460F that ended with their echo, after 51 to 175 seconds |
 | A controller answers report2 with the day, night and window open temperature in the following slots | `11_FHT.pm` | 2026-10-18 and 2026-10-19: the thermostats answered and the number entities filled in |
 | `set_temperature` in automatic mode keeps the mode and is a temporary override until the next switch time | decision D7, the manual | 2026-10-18: the mode stayed automatic after a setpoint |
 | The presets comfort and eco, the HVAC modes off and auto and the setpoint work and are echoed | the climate entity | 2026-10-18 |
@@ -376,6 +376,6 @@ The decoding differs from the sources in these places:
 
 The first runs on the real stick (2026-10-18 and 2026-10-19) answered the questions about the echo of a value, the modes, the week program and the reconnect. These questions are still open, because the simulator can only assume the answers (see `tests/culfw_sim/README.md`):
 
-- Does the controller echo a report request like any other command? The outbox does not depend on it. A report that nobody echoed leaves the queue quietly when its message left the buffer, and it neither counts against the controller nor makes it known. Without the echo, a controller that never echoed a command of the user stays unconfirmed, and the daily time sync waits until the user presses the sync button or sets a value.
+- A controller echoes a report request (2026-11-21, see the table above), but the outbox still does not depend on it. A report that nobody echoed leaves the queue quietly when its message left the buffer, and it neither counts against the controller nor makes it known. A report that timed out is still in the buffer and counts as unechoed like any other message. Before that, a thermostat that collected nothing got a report every 30 minutes from 2026-11-21 02:13 to 07:43, 14 in all, and the buffer filled up to its reserve without any repair issue about the thermostat.
 - What does the answer to `T02` look like on culfw 1.66? While a message is in flight, the outbox reads it at most every 30 seconds and keeps the last answer, and the diagnostics show it under `outbox.fht_queue`. Compare it with the format in the notes above before `USE_T02_GATE` is switched on.
 - Does a controller echo the value it stored when it clamps a value? The outbox counts a message whose echo shows another value as unechoed.

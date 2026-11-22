@@ -1,5 +1,6 @@
 """Repairs for the culfw integration."""
 
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 import logging
 
@@ -75,7 +76,8 @@ class IssueTracker:
       raise false alarms right after a restart or an outage.
     - `battery_low_<id>`: the device reports a weak battery.
     - `fht_buffer_low`: few free bytes in the FHT send buffer of the CUL (a warning
-      below 128 bytes twice in a row, an error below 32).
+      below 128 bytes twice in a row, an error below 32). When messages for some
+      FHT80b timed out and wait in the buffer, the text names them.
     - `cul_unreachable`: the CUL has been disconnected for 15 minutes. While it is
       raised, the device_silent issues are withdrawn, which gives one alarm instead of
       a dozen.
@@ -250,32 +252,46 @@ class IssueTracker:
             )
 
     @callback
-    def async_cul_status(self, status: CulStatus | None) -> None:
-        """Check the free FHT buffer after each poll of the CUL."""
+    def async_cul_status(
+        self, status: CulStatus | None, stranded: Sequence[str] = ()
+    ) -> None:
+        """Check the free FHT buffer after each poll of the CUL.
+
+        `stranded` lists the FHT80b whose messages timed out and wait in the buffer.
+        The issue names them, because they are the cause and the thing to fix.
+        """
         if status is None:
             return
         free = status.fht_buffer_free_bytes
         placeholders = {"free": str(free)}
+        if stranded:
+            placeholders["names"] = ", ".join(
+                sorted(self._device_name(device_id) for device_id in stranded)
+            )
         if free < FHT_BUFFER_CRITICAL_BYTES:
             self._buffer_low_polls += 1
-            self._create(
-                ISSUE_FHT_BUFFER_LOW,
-                "fht_buffer_low",
-                ir.IssueSeverity.ERROR,
-                placeholders,
-            )
+            self._create_buffer_low(ir.IssueSeverity.ERROR, placeholders)
         elif free < FHT_BUFFER_WARNING_BYTES:
             self._buffer_low_polls += 1
             if self._buffer_low_polls >= 2:
-                self._create(
-                    ISSUE_FHT_BUFFER_LOW,
-                    "fht_buffer_low",
-                    ir.IssueSeverity.WARNING,
-                    placeholders,
-                )
+                self._create_buffer_low(ir.IssueSeverity.WARNING, placeholders)
         else:
             self._buffer_low_polls = 0
             self._delete(ISSUE_FHT_BUFFER_LOW)
+
+    def _create_buffer_low(
+        self, severity: ir.IssueSeverity, placeholders: dict[str, str]
+    ) -> None:
+        """Raise the buffer issue, with the names of the FHT80b when they are known."""
+        if "names" in placeholders:
+            self._create(
+                ISSUE_FHT_BUFFER_LOW,
+                "fht_buffer_low_stranded",
+                severity,
+                placeholders,
+            )
+        else:
+            self._create(ISSUE_FHT_BUFFER_LOW, "fht_buffer_low", severity, placeholders)
 
     @callback
     def async_watchdog_event(self, event: WatchdogEvent) -> None:

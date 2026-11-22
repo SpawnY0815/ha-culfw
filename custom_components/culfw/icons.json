@@ -9,6 +9,9 @@
       },
       "sync_time": {
         "default": "mdi:clock-check-outline"
+      },
+      "clear_fht_buffer": {
+        "default": "mdi:delete-sweep"
       }
     },
     "calendar": {

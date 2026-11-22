@@ -247,6 +247,10 @@ A button fails with a message when the thermostat was not heard in the last 15 m
   - Description: Sends the date and the time to every thermostat that was heard in the last 15 minutes. The integration does this by itself every night at 04:05.
   - Available for: CUL
   - Remarks: Configuration entity. The press succeeds when the time was queued. It goes out when the radio budget of the CUL allows, which can take a few minutes (see [Known limitations](#known-limitations)). It fails with a message when no thermostat is known yet, and when none of them takes the time. It is unavailable while the CUL is not connected.
+- **Clear FHT buffer**
+  - Description: Empties the FHT send buffer of the CUL. Every message that still waits in it is dropped, for every thermostat, and the commands that were on their way end as lost. Use it when the buffer is full with messages for a thermostat that does not collect them (see [Send buffer almost full](#send-buffer-almost-full)).
+  - Available for: CUL
+  - Remarks: Configuration entity. Every clear rewrites the memory of the CUL, so the integration clears the buffer at most 6 times in 24 hours, counting its own automatic clears, and the press fails with a message beyond that. It is unavailable while the CUL is not connected.
 - **Refresh settings**
   - Description: Asks the thermostat for its mode, its setpoint, its day, night and window open temperature, its low temperature alarm offset and its warnings. The thermostat answers in its next time slots, within a few minutes.
   - Available for: FHT80b
@@ -679,14 +683,18 @@ The repair issue "Send buffer almost full" is shown, or commands are refused wit
 
 #### Description
 
-Messages for a thermostat wait in the FHT buffer of the CUL until the thermostat collects them. Messages for a silent thermostat never leave it. When the buffer is full, the CUL drops new messages.
+Messages for a thermostat wait in the FHT buffer of the CUL until the thermostat collects them. Messages for a thermostat that does not collect them never leave it. When the buffer is full, the CUL drops new messages. The repair issue names the thermostats whose messages wait in the buffer without an echo.
+
+A thermostat that is not registered with the central code of the CUL collects nothing, but it still controls its valve, so it seems to work. After two messages without an echo the integration sends nothing on its own to it any more and shows the repair issue "Not collecting commands".
 
 #### Resolution
 
-1. Fix the cause of the repair issues about silent devices.
-2. Add devices that are gone for good, or that belong to a neighbor, to **Ignored devices**.
+1. On each thermostat that the repair issue names: hold PROG until `Sond` shows, select `CEnt` and press PROG. If it does not show `On`, choose `nA` and confirm with PROG.
+2. Fix the cause of the repair issues about silent devices.
+3. Add devices that are gone for good, or that belong to a neighbor, to **Ignored devices**.
+4. To free the buffer at once, press **Clear FHT buffer** on the CUL device. This drops every message that still waits, for every thermostat.
 
-The buffer is cleared by the integration when the CUL reports that it is full.
+The integration also clears the buffer by itself when the CUL reports a full buffer and the buffer is critical.
 
 ### Time sync missing
 

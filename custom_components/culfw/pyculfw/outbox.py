@@ -169,6 +169,7 @@ class ChannelState:
     broken: bool
     unechoed: int
     probes: int
+    stranded: int
 
 
 @dataclass(slots=True)
@@ -309,6 +310,9 @@ class _Channel:
     unechoed: int = 0
     broken: bool = False
     probes: int = 0
+    # The messages that timed out without an echo, so they still wait in the buffer of
+    # the CUL until the controller collects again or the buffer is emptied.
+    stranded: int = 0
 
     @property
     def device_id(self) -> str:
@@ -520,7 +524,8 @@ class FhtOutbox:
        `handle_update()`.
 
     A controller that did not echo BREAKER_THRESHOLD messages in a row does not collect
-    (it is silent but alive, or paired to another central). Anything automatic to it
+    (it is silent but alive, or paired to another central). A report request counts
+    when it timed out, which means that it is still in the buffer of the CUL. Anything automatic to it
     stops, a staged automatic message is dropped, and only commands that the user
     asked for go on. Any echo ends this. Automatic requests (`automatic=True`, for
     example the time sync and the read-back) go only to controllers that echoed a
@@ -605,9 +610,23 @@ class FhtOutbox:
                 broken=channel.broken,
                 unechoed=channel.unechoed,
                 probes=channel.probes,
+                stranded=channel.stranded,
             )
             for device_id, channel in self._channels.items()
         }
+
+    def stranded(self) -> list[str]:
+        """Return the controllers whose messages are left in the buffer of the CUL.
+
+        A message that timed out without an echo did not leave the buffer, so it waits
+        there until its controller collects again or the buffer is emptied. The list
+        tells the user whose messages fill the buffer.
+        """
+        return [
+            device_id
+            for device_id, channel in self._channels.items()
+            if channel.stranded
+        ]
 
     def is_broken(self, device_id: str) -> bool:
         """Return True while no automatic message goes to the controller."""
@@ -714,6 +733,8 @@ class FhtOutbox:
         """Note that the controller echoed a command, so it collects our messages."""
         channel.device.echoed_at = self._network.now()
         channel.unechoed = 0
+        # A controller that collects again takes its waiting messages in its next slots.
+        channel.stranded = 0
         if channel.broken:
             channel.broken = False
             _LOGGER.info("%s echoed a command again", channel.label)
@@ -726,11 +747,14 @@ class FhtOutbox:
         (it was emptied or reset) or are not worth waiting for. Nothing is counted
         against the controller, because it has not failed to collect anything. The
         commands that were retired in the queue leave their staged messages by
-        themselves.
+        themselves. Only a reset of every controller says that the buffer is empty, so
+        only that forgets the messages that were left in it.
         """
         for channel in self._channels.values():
             if device_id in (None, channel.device_id):
                 channel.in_flight = None
+            if device_id is None:
+                channel.stranded = 0
         if all(channel.in_flight is None for channel in self._channels.values()):
             self._idle_free = None
         self._wake.set()
@@ -1052,11 +1076,15 @@ class FhtOutbox:
         """End the wait for the message in flight and count a message nobody echoed.
 
         A message that nobody echoed while the link was down proves nothing about the
-        controller, so it does not count. Neither does a report request: nobody has
-        seen whether a controller repeats it, and the data telegrams that answer it are
-        no proof either, as the controller sends them on its own as well. So a report
-        that was not echoed is withdrawn quietly instead of expiring as a command that
-        the user lost.
+        controller, so it does not count. A report request that left the buffer without
+        an echo does not count either, because the data telegrams that answer it are no
+        proof, as the controller sends them on its own as well. A report that timed out
+        is still in the buffer, though: the controller did not collect it. It counts
+        like any other message, because the refresh planner would otherwise add one
+        every 30 minutes and fill the buffer without ever cutting the controller off.
+        Either way a report that was not echoed is withdrawn quietly instead of expiring
+        as a command that the user lost. A message that timed out without an echo is
+        left in the buffer and counts as stranded.
         """
         channel.in_flight = None
         if all(other.in_flight is None for other in self._channels.values()):
@@ -1081,7 +1109,13 @@ class FhtOutbox:
                 ],
                 PendingState.SUPERSEDED,
             )
-        elif not flight.echoed and self._transport.state is TransportState.READY:
+        if not flight.echoed and outcome is _Outcome.TIMEOUT:
+            channel.stranded += 1
+        if (
+            not flight.echoed
+            and self._transport.state is TransportState.READY
+            and (not flight.report or outcome is _Outcome.TIMEOUT)
+        ):
             channel.unechoed += 1
             if channel.unechoed >= BREAKER_THRESHOLD and not channel.broken:
                 self._break(channel)

@@ -153,7 +153,7 @@
     "fht_buffer_low": {
       "title": "The FHT send buffer of the CUL is almost full",
       "short_title": "Send buffer almost full",
-      "description": "The FHT send buffer of the CUL has only {free} bytes free.\n\nMessages for a thermostat wait in this buffer until the thermostat asks for them. Messages for a thermostat that stays silent never leave it. When the buffer is full, the CUL drops new messages, and commands and time syncs no longer reach any thermostat.\n\nTo fix this:\n\n1. Look for repair issues about silent devices and fix their cause, usually weak batteries or a missing radio link.\n2. Add devices that are gone for good, or that belong to a neighbor, to **Ignored devices** in the options of the integration.\n\nMessages that are already waiting leave the buffer when their thermostat collects them, or when the integration clears the buffer, which it does when the CUL reports that the buffer is full. This issue disappears with the first check of the CUL after that, within a few minutes."
+      "description": "The FHT send buffer of the CUL has only {free} bytes free.\n\nMessages for a thermostat wait in this buffer until the thermostat collects them in its time slot. Messages for a thermostat that does not collect them never leave it. When the buffer is full, the CUL drops new messages, and commands and time syncs no longer reach any thermostat.\n\nTo fix this:\n\n1. Look for repair issues about thermostats that are silent or that do not collect commands, and fix their cause.\n2. Add devices that are gone for good, or that belong to a neighbor, to **Ignored devices** in the options of the integration.\n3. To free the buffer at once, press **Clear FHT buffer** on the CUL device. This drops every message that still waits, for every thermostat.\n\nWaiting messages leave the buffer when their thermostat collects them or when the buffer is cleared. This issue disappears with the first check of the CUL after that, within a few minutes."
     },
     "cul_unreachable": {
       "title": "The CUL is not reachable",
@@ -173,7 +173,12 @@
     "device_unresponsive": {
       "title": "{name} does not collect commands",
       "short_title": "Not collecting commands",
-      "description": "{name} did not echo the last messages of the integration.\n\nA thermostat echoes every command it receives. Without an echo the integration cannot tell whether its messages arrive, so it sends nothing on its own to {name} (the nightly time sync and the reading of its settings) until it echoes a command again. Commands that you set yourself still go out.\n\nTo fix this:\n\n1. Check that {name} has working batteries and is in range of the CUL.\n2. Check that {name} is registered with the central code that the CUL uses (`CEnt` shows `On` on the thermostat), and not with another central.\n3. Set a temperature on {name} from Home Assistant to try it again.\n\nThe issue disappears as soon as {name} echoes a command."
+      "description": "{name} did not echo the last messages of the integration.\n\nA thermostat echoes every command it receives. Without an echo the integration cannot tell whether its messages arrive, so it sends nothing on its own to {name} (the nightly time sync and the reading of its settings) until it echoes a command again. Commands that you set yourself still go out. A thermostat that is not registered with the central code of the CUL still controls its valve and may seem to work.\n\nTo fix this:\n\n1. Check that {name} is registered with the central code of the CUL: hold PROG until `Sond` shows, select `CEnt` and press PROG. If it does not show `On`, choose `nA` and confirm with PROG, so that it registers with the CUL again.\n2. Check that {name} has working batteries and is in range of the CUL.\n3. Set a temperature on {name} from Home Assistant to try it again.\n\nThe issue disappears as soon as {name} echoes a command."
+    },
+    "fht_buffer_low_stranded": {
+      "title": "The FHT send buffer of the CUL is almost full",
+      "short_title": "Send buffer almost full",
+      "description": "The FHT send buffer of the CUL has only {free} bytes free, and messages for {names} wait in it, because no echo came for them.\n\nA thermostat collects its messages in its time slot and echoes every command it receives. A thermostat that is not registered with the central code of the CUL collects nothing, but it still controls its valve and may seem to work. When the buffer is full, the CUL drops new messages, and commands and time syncs no longer reach any thermostat.\n\nTo fix this:\n\n1. On each of these thermostats, hold PROG until `Sond` shows, select `CEnt` and press PROG. If it does not show `On`, choose `nA` and confirm with PROG, so that it registers with the CUL again.\n2. Check that each of them has working batteries and is in range of the CUL.\n3. To free the buffer at once, press **Clear FHT buffer** on the CUL device. This drops every message that still waits, for every thermostat.\n\nThe waiting messages leave the buffer when their thermostat collects them or when the buffer is cleared. This issue disappears with the first check of the CUL after that, within a few minutes."
     }
   },
   "entity": {
@@ -243,6 +248,9 @@
       },
       "refresh_schedule": {
         "name": "Refresh schedule"
+      },
+      "clear_fht_buffer": {
+        "name": "Clear FHT buffer"
       }
     },
     "calendar": {
@@ -315,7 +323,7 @@
       "message": "The 1% radio budget of the CUL stayed below {minimum} ms for {minutes} minutes, so the command was not sent. Try again in a few minutes."
     },
     "send_buffer_full": {
-      "message": "The FHT buffer of the CUL has {free} bytes free, but the command needs {needed} bytes plus {reserve} bytes of reserve. Try again after the thermostats have collected the waiting commands."
+      "message": "The FHT buffer of the CUL has {free} bytes free, but the command needs {needed} bytes plus {reserve} bytes of reserve. Try again after the thermostats have collected the waiting commands, or press Clear FHT buffer on the CUL device."
     },
     "send_not_queued": {
       "message": "The CUL did not take the {count} commands, because its FHT buffer overflowed (culfw printed `EOB`). Try again in a few minutes."
@@ -376,6 +384,12 @@
     },
     "schedule_ranges_overlap": {
       "message": "{day}: the ranges from {first_start} to {first_end} and from {second_start} to {second_end} overlap."
+    },
+    "buffer_clear_limit": {
+      "message": "The FHT buffer was not cleared, because it was cleared too often in the last 24 hours. Every clear rewrites the memory of the CUL, so the number is limited. Try again later."
+    },
+    "buffer_clear_failed": {
+      "message": "The CUL did not take the command to clear the FHT buffer. The reason is in the log of Home Assistant."
     }
   },
   "services": {

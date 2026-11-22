@@ -4,6 +4,23 @@ All notable changes to the culfw integration are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
+No action is needed after the update. A thermostat that does not collect its messages now shows the repair issue "Not collecting commands" after two unanswered messages.
+
+### Added
+
+- The button **Clear FHT buffer** of the CUL empties the send buffer at once, for messages that a thermostat does not collect. It drops every waiting message and is limited to 6 clears in 24 hours, together with the automatic ones.
+
+### Changed
+
+- The repair issue "Send buffer almost full" names the thermostats whose messages wait in the buffer without an echo, and tells how to register such a thermostat with the CUL again.
+- The repair issue "Not collecting commands" explains that such a thermostat still controls its valve and may seem to work, and how to register it again.
+
+### Fixed
+
+- A thermostat that collects nothing no longer fills the send buffer of the CUL. A request for its settings that stays in the buffer now counts as unanswered, so after two of them the thermostat gets nothing automatic any more and the repair issue "Not collecting commands" appears. Before, such a thermostat got a request every 30 minutes until the buffer was full, and then no command reached any thermostat.
+
 ## [0.3.2] - 2026-11-03
 
 A release of texts only. Nothing changes in the behavior of the integration, and no action is needed after the update.
@@ -103,7 +120,8 @@ The first version that runs on a real busware CUL868 in a house with FHT80b ther
 - The websocket commands of the card check the permission of the user for the entity, read for the state and control for a change.
 - Vite was updated to close the advisories of its `launch-editor` dependency in the development tools of the card.
 
-[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/SpawnY0815/ha-culfw/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.4.0
 [0.3.2]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.2
 [0.3.1]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.1
 [0.3.0]: https://github.com/SpawnY0815/ha-culfw/releases/tag/v0.3.0
